@@ -1,0 +1,56 @@
+{
+  "name": "cwic",
+  "title": "cwic - cloud workstation in container",
+  "summary": "Your home directory in the cloud! The DNAnexus cloud!:-)",
+  "dxapi": "1.0.0",
+  "version": "0.0.1",
+  "billTo": "org-dnanexus",
+  "openSource": true,
+  "inputSpec": [
+    {
+      "name": "image",
+      "label": "Docker image name",
+      "class": "string",
+      "optional": true,
+      "help": "Docker image name to be loaded. If it is not provided, and no credential file is provided, a default dnanexus/cwic-base:latest will be used. See Readme for details"
+    },
+    {
+      "name": "cmd",
+      "label": "Command",
+      "class": "string",
+      "optional": true,
+      "help": "A command to be executed. If it is provided, an non-interactive mode of the cwic will be loaded to run the command and exit"
+    },
+    {
+      "name": "credentials",
+      "label": "Credentials",
+      "class": "file",
+      "optional": true,
+      "patterns": [
+        "*"
+      ],
+      "help": "A file storing an access token and user login information to a Docker registry where a Docker image holding the user's cwic instance will be stored"
+    }
+  ],
+  "outputSpec": [],
+  "runSpec": {
+    "interpreter": "bash",
+    "release": "16.04",
+    "distribution": "Ubuntu",
+    "file": "src/code.sh",
+    "version": "1"
+  },
+  "access": {
+      "network": ["*"],
+      "project": "CONTRIBUTE",
+      "allProjects": "VIEW"
+  },
+  "regionalOptions": {
+    "azure:westus": {"systemRequirements": {"*": {"instanceType": "azure:mem1_ssd1_x4"}}},
+    "azure:westeurope": {"systemRequirements": {"*": {"instanceType": "azure:mem1_ssd1_x4"}}},
+    "aws:us-east-1": {"systemRequirements": {"*": {"instanceType": "mem1_ssd1_x4"}}},
+    "aws:cn-north-1": {"systemRequirements": {"*": {"instanceType": "mem1_ssd1_x4"}}},
+    "aws:eu-central-1": {"systemRequirements": {"*": {"instanceType": "mem1_ssd1_x4"}}},
+    "aws:ap-southeast-2": {"systemRequirements": {"*": {"instanceType": "mem1_ssd1_x4"}}}
+  }
+}

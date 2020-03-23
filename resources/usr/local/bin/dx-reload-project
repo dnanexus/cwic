@@ -1,0 +1,29 @@
+#!/usr/bin/env bash
+set -e
+
+if [[ $1 == "--help" || $1 == "-h" ]]; then
+    echo -e "Usage: $0"
+    echo -e "Synchronizes the project on the DNAnexus platform with its local mount point"
+    echo -e "This command should be executed in a Docker container running a cwic instance"
+    exit
+fi
+
+command -v dxfuse >/dev/null 2>&1 || (echo "ERROR: dxfuse is required in the cwic Docker container."; exit 1)
+
+if [[ -f /home/dnanexus/environment ]]; then
+    source /home/dnanexus/environment
+fi
+
+if [[ -n $DX_SECURITY_CONTEXT ]]; then
+    MOUNT_POINT=/project
+    DX_PROJECT_NAME=$(dx describe $DX_PROJECT_CONTEXT_ID  --json | jq .name)
+    echo "Mounting ${DX_PROJECT_NAME} in $MOUNT_POINT"
+    dxfuse -sync
+    umount $MOUNT_POINT
+    if dxfuse -verbose 2 -uid $(id -u) -gid $(id -g) $MOUNT_POINT $DX_PROJECT_CONTEXT_ID; then
+        echo "Mounted"
+    else
+        echo "ERROR: Tailing /var/log/dxfuse.log.."
+        tail /var/log/dxfuse.log
+    fi
+fi

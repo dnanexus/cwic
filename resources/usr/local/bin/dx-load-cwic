@@ -1,0 +1,37 @@
+#!/usr/bin/env bash
+
+set -e
+
+if [[ $1 == "--help" || $1 == "-h" ]]; then
+    echo -e "Usage: $0"
+    echo -e "Logins into a running 'cwic' Docker container"
+    echo -e "Root permissions are needed to run this command (run it with sudo)"
+    exit
+fi
+
+sudo mark-section "logging into the running cwic container"
+
+echo "Logging into the cwic Docker container"
+runtime="8 minute"
+endtime=$(date -ud "$runtime" +%s)
+while [[ $(date -u +%s) -le $endtime ]]; do
+    if [[ $(sudo docker ps --filter status=running --filter name=cwic -q) ]]; then
+        echo "cwic is running.."
+        eval $(cat /home/dnanexus/environment | grep DX_PROJECT_CONTEXT_ID)
+        LINES=$(tput lines)
+        COLS=$(tput cols)
+        sudo docker exec -it -e LINES=$LINES -e COLUMNS=$COLS -e DX_PROJECT_CONTEXT_ID=$DX_PROJECT_CONTEXT_ID cwic bash
+        break
+    elif [[ $(sudo docker ps --filter status=exited --filter name=cwic -q) ]]; then
+        echo "cwic container exited. Printing logs from the container.."
+        docker logs cwic
+        exit
+    else
+        echo "Waiting for the cwic container to start.."
+        sleep 5
+    fi
+done
+
+if [[ ! $(sudo docker ps --filter status=running --filter name=cwic -q) ]]; then
+    echo "cwic hasn't started. Giving up.."
+fi

@@ -1,0 +1,8 @@
+version: '3.7'
+ 
+services:
+  dev-workstation:
+    build:
+      context: ./docker
+      dockerfile: Dockerfile
+    image: dnanexus/cwic-base:latest

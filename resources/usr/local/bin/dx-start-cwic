@@ -1,0 +1,27 @@
+#!/usr/bin/env bash
+
+set -e
+
+if command -v dxfuse >/dev/null 2>&1; then
+    source /home/dnanexus/environment
+
+    MOUNT_POINT=/project
+    DX_PROJECT_NAME=$(dx describe $DX_PROJECT_CONTEXT_ID  --json | jq .name)
+    echo "Mounting ${DX_PROJECT_NAME} in $MOUNT_POINT"
+    if dxfuse -verbose 2 -uid $(id -u) -gid $(id -g) $MOUNT_POINT $DX_PROJECT_CONTEXT_ID; then
+        echo "Mounted"
+    else
+        echo "ERROR: Tailing /var/log/dxfuse.log.."
+        tail /var/log/dxfuse.log
+    fi
+
+    echo "NOTE: /scratch and /project directories will *not* be persisted in a Docker image saved by dx-save-cwic (docker commit)"
+
+    echo "Executing: $@"
+    eval "$@"
+    dxfuse -sync
+else
+    echo "Executing: $@"
+    eval "$@"
+fi
+

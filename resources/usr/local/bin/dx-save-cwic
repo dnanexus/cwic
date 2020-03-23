@@ -1,0 +1,66 @@
+#!/usr/bin/env bash
+
+set -e
+
+USER_PROVIDED_IMG=$1
+
+if [[ $# -gt 2 || $1 == "--help" || $1 == "-h" ]]; then
+    echo -e "Usage: $0 <image name (optional)>"
+    echo -e "Saves changes in a writable Docker layer as a new image and pushed to registry"
+    echo -e "The image will be pushed to the registry specified in the $HOME/credentials input file passed at the start of the job"
+    echo -e "If the image name is not specified, the name will ne created based on the DNAnexus project and user name"
+    echo -e "This command should be executed in a Docker container running cwic"
+    exit
+fi
+
+command -v docker >/dev/null 2>&1 || (echo "ERROR: docker is required in the cwic Docker container."; exit 1)
+
+if ! source /usr/local/bin/dx-registry-login; then
+    echo "Command dx-save-cwic should be run in a DNAnexus worker"
+fi
+
+mark-section 'saving cwic in a remote registry'
+
+CONTAINER_ID=$(docker ps -q --filter name=cwic)
+
+if [[ -n "$USER_PROVIDED_IMG" ]]; then
+    # Docker commit and push
+    echo "Saving and pushing changes as a layer in $USER_PROVIDED_IMG"
+    docker commit -m "Committing latest changes at $(date)" --change 'ENTRYPOINT ["/bin/bash"]' $CONTAINER_ID $USER_PROVIDED_IMG
+    docker push $USER_PROVIDED_IMG
+else
+    # Generate Docker image name, commit and push
+
+    # Using registry, repository, and user credentials from the credentials file
+    # processed by dx-registry-login
+    if [[ -n "${REGISTRY}" ]]; then
+        echo "Using registry: $REGISTRY"
+    else
+        echo "Using registry: docker.io"
+    fi
+
+    echo "Using repository: $REPOSITORY"
+    DXUSER=$(jq .launchedBy /home/dnanexus/dnanexus-job.json | tr -d '"')
+    DXPROJECT=$(jq .project /home/dnanexus/dnanexus-job.json | tr -d '"')
+    CUSTOM_USER_IMG=$(echo "$REPOSITORY/dx-cwic-${DXPROJECT}_${DXUSER}" | tr '[:upper:]' '[:lower:]')
+
+    if [[ -n "${REGISTRY}" ]]; then
+        CUSTOM_USER_IMG="$REGISTRY/$CUSTOM_USER_IMG"
+    fi
+
+    # Tag the image
+    TAG_LATEST="latest"
+    TAG_TS=$(date +%s)
+    CUSTOM_USER_IMG_LATEST="$CUSTOM_USER_IMG:$TAG_LATEST"
+    CUSTOM_USER_IMG_TS="$CUSTOM_USER_IMG:$TAG_TS"
+
+    echo "Saving changes as a layer in $CUSTOM_USER_IMG_TS"
+    docker commit -m "Committing latest changes at $(date)" --change 'ENTRYPOINT ["/bin/bash"]' $CONTAINER_ID $CUSTOM_USER_IMG_TS
+
+    echo "Additionally taging the new image as $CUSTOM_USER_IMG_LATEST"
+    docker tag $CUSTOM_USER_IMG_TS $CUSTOM_USER_IMG_LATEST
+
+    echo "Pushing changes as a layer in $CUSTOM_USER_IMG with tags: $TAG_TS and $TAG_LATEST"
+    docker push $CUSTOM_USER_IMG_TS
+    docker push $CUSTOM_USER_IMG_LATEST
+fi
