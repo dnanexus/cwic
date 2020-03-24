@@ -49,4 +49,8 @@ CMD ["/bin/bash"]
 WORKDIR /home/dnanexus
 ENV HOME=/home/dnanexus
 
+# Set cwic prompt
 RUN echo 'PS1="$(tput setaf 3)$(tput bold)root@cwic:\\w# $(tput sgr0)"' >> /etc/bash.bashrc
+
+# Update stty size upon login to the container (stty size is used by dx printing utility)
+RUN echo 'stty columns $COLUMNS; stty rows $LINES' >> /etc/bash.bashrc
