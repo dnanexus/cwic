@@ -26,7 +26,7 @@ DNAnexus project in which the app is run is mounted in the environment using [dx
 
 The app takes three optional inputs:
 
-* `image` - a Docker image name to be loaded. If it is not provided, and no credentials file is provided, a default DNAnexus image dnanexus/cwic-base will be used. If credentials to a Docker registry are supplied,  will first check if there is an image specific to the user and project available in that registry (<registry>/<repository>/cwic-<project-id>-<user-id>) and use this image if available. Such images named after the project and user are created and pushed to your private registry when the command "dx-save-cwic" is run in the workspace. The provided image should contain dxfuse and docker if the work in that image will have to be saved and a mounted project will need to be accessed.
+* `image` - a Docker image name to be loaded. If it is not provided, and no credentials file is provided, a default DNAnexus image dnanexus/cwic-base will be used. If credentials to a Docker registry are supplied,  will first check if there is an image specific to the user and project available in that registry (&lt;registry&gt;/&lt;organization&gt;/dx-cwic-&lt;dnanexus-project-id&gt;\_&lt;dnanexus-user-id&gt;:latest) and use this image if available. Such images named after the project and user are created and pushed to your private registry when the command "dx-save-cwic" is run in the workspace. The provided image should contain dxfuse and docker if the work in that image will have to be saved and a mounted project will need to be accessed.
 
 * `cmd` - A command to be run in the user's environment (Docker image). If "image" is provided, the command will be run in the container run from that image (see the description of the "image" input). The command is evaluated using a bash shell, which will expand wildcards and shell variables.
 
@@ -35,10 +35,10 @@ The app takes three optional inputs:
 ```
 {
     "docker_registry": {
-        "registry": "docker.io",
-        "username": "myusername",
-        "repository": "dnanexus",
-        "token": "ABC-124-DEF-456"
+        "registry": "docker.io",    # registry name, e.g. docker.io or quay.io
+        "username": "myusername",   # registry login name
+        "organization": "dnanexus", # optional, defaults to the value of the "username" field above
+        "token": "ABC-124-DEF-456"  # API token generated on the registry website. Quay.io refers to this as 'encrypted password'
     }
 }
 ```

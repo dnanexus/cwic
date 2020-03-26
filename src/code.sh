@@ -40,15 +40,15 @@ main() {
         else
             # Check if user has a custom image in the registry; if not, use DNAnexus base image
             DXUSER=$(jq .launchedBy /home/dnanexus/dnanexus-job.json | tr -d '"')
-            CUSTOM_USER_IMG=$(echo "$REGISTRY_USERNAME/dx-cwic-${DX_PROJECT_CONTEXT_ID}_${DXUSER}:latest" | tr '[:upper:]' '[:lower:]')
+            CUSTOM_USER_IMG=$(echo "$REGISTRY_ORGANIZATION/dx-cwic-${DX_PROJECT_CONTEXT_ID}_${DXUSER}:latest" | tr '[:upper:]' '[:lower:]')
             if [ -n "${REGISTRY}" ]; then
                 CUSTOM_USER_IMG="$REGISTRY/$CUSTOM_USER_IMG"
             fi
-            echo "Attempting to download $CUSTOM_USER_IMG"
+            echo "Attempting to download user's custom Docker image $CUSTOM_USER_IMG"
             if docker pull $CUSTOM_USER_IMG; then
                 image=$CUSTOM_USER_IMG
             else
-                echo "Custom user Docker image not found, using DNAnexus base image"
+                echo "$CUSTOM_USER_IMG not found, using DNAnexus base image $DXBASEIMG"
                 image=$DXBASEIMG
             fi
         fi

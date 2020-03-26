@@ -31,7 +31,7 @@ if [[ -n "$USER_PROVIDED_IMG" ]]; then
 else
     # Generate Docker image name, commit and push
 
-    # Using registry, repository, and user credentials from the credentials file
+    # Using registry, organization, and user credentials from the credentials file
     # processed by dx-registry-login
     if [[ -n "${REGISTRY}" ]]; then
         echo "Using registry: $REGISTRY"
@@ -39,10 +39,10 @@ else
         echo "Using registry: docker.io"
     fi
 
-    echo "Using repository: $REPOSITORY"
+    echo "Using organization: $REGISTRY_ORGANIZATION"
     DXUSER=$(jq .launchedBy /home/dnanexus/dnanexus-job.json | tr -d '"')
     DXPROJECT=$(jq .project /home/dnanexus/dnanexus-job.json | tr -d '"')
-    CUSTOM_USER_IMG=$(echo "$REPOSITORY/dx-cwic-${DXPROJECT}_${DXUSER}" | tr '[:upper:]' '[:lower:]')
+    CUSTOM_USER_IMG=$(echo "$REGISTRY_ORGANIZATION/dx-cwic-${DXPROJECT}_${DXUSER}" | tr '[:upper:]' '[:lower:]')
 
     if [[ -n "${REGISTRY}" ]]; then
         CUSTOM_USER_IMG="$REGISTRY/$CUSTOM_USER_IMG"
