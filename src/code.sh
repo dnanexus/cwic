@@ -81,9 +81,9 @@ main() {
     #     -v /home/dnanexus/*:/home/dnanexus/*:ro \
     #   gives us access to input files and dx-specific variables & files
     #   and doesn not save these files with docker commit
-    # * The option:
-    #     -v /tmp/.dummy:/home/dnanexus/.dnanexus_config
-    #   prevents /home/dnanexus/.dnanexus_config from saving with docker commit
+    # * The options:
+    #     -v /tmp/.dummy*:...
+    #   prevent container dirs from being saved in a layer with docker commit
     # * The options:
     #     --device /dev/fuse \
     #     --cap-add SYS_ADMIN \
@@ -102,7 +102,9 @@ main() {
         -v /home/dnanexus/dnanexus-job.json:/home/dnanexus/dnanexus-job.json:ro
         -v /home/dnanexus/environment:/home/dnanexus/environment:ro
         -v /home/dnanexus/.docker:/home/dnanexus/.docker
-        -v /tmp/.dummy:/home/dnanexus/.dnanexus_config
+        -v /home/dnanexus/job_error.json:/home/dnanexus/job_error.json
+        -v /tmp/.dummy1:/home/dnanexus/.dnanexus_config
+        -v /tmp/.dummy2:/root/.ssh
         -v /home/dnanexus/credentials:/home/dnanexus/credentials
         -v /var/run/docker.sock:/var/run/docker.sock
         --device /dev/fuse
