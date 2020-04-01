@@ -46,6 +46,7 @@
       "allProjects": "VIEW"
   },
   "regionalOptions": {
+    "azure:eastus": {"systemRequirements": {"*": {"instanceType": "azure:mem1_ssd1_x4"}}},
     "azure:westus": {"systemRequirements": {"*": {"instanceType": "azure:mem1_ssd1_x4"}}},
     "azure:westeurope": {"systemRequirements": {"*": {"instanceType": "azure:mem1_ssd1_x4"}}},
     "aws:us-east-1": {"systemRequirements": {"*": {"instanceType": "mem1_ssd1_x4"}}},
