@@ -6,7 +6,7 @@ This app provides an interactive analysis environment for the users. The environ
 
 The user's environment is set up in a Docker container. It can be accessed by running the app with the **--ssh** or **--allow-ssh** flags. The changes made in the workspace, such as installing packages, adding files, configuration, etc., can be saved as a Docker image and pushed to your private Docker registry. This image can be accessed and used in subsequent app runs.
 
-If a bash command is passed on the input, the app will run in an non-interactive batch mode and execute the command in the (most recently saved) user's Docker environment. The default DNAnexus public image ([dnanexus/cwic-base:latest](https://hub.docker.com/r/dnanexus/cwic-base)) will be pulled and loaded if the user's registry doesn't contain a cwic image or the credentials file is not available.
+If a bash command is passed on the input, the app will run in a non-interactive batch mode and execute the command in the (most recently saved) user's Docker environment. The default DNAnexus public image ([dnanexus/cwic-base:latest](https://hub.docker.com/r/dnanexus/cwic-base)) will be pulled and loaded if the user's registry doesn't contain a cwic image or the credentials input file is not available.
 
 DNAnexus project in which the app is run is mounted in the environment using [dxfuse](https://github.com/dnanexus/dxfuse) and so the files in the project are accessible directly as local files in the workspace without the need of manual download and upload.  Cwic environment provides scripts for syncing up the remote project with the local mount point, e.g. the command "dx-save-project" saves the locally created files in the platform (syncing is done automatically by dxfuse every 5 minutes) and "dx-load-project" refreshes the mount so that new files added to the project by the platform are visible locally in the cwic workspace environment.
 
@@ -26,7 +26,7 @@ DNAnexus project in which the app is run is mounted in the environment using [dx
 
 The app takes three optional inputs:
 
-* `image` - a Docker image name to be loaded. If it is not provided, and no credentials file is provided, a default DNAnexus image dnanexus/cwic-base will be used. If credentials to a Docker registry are supplied,  will first check if there is an image specific to the user and project available in that registry (&lt;registry&gt;/&lt;organization&gt;/dx-cwic-&lt;dnanexus-project-id&gt;\_&lt;dnanexus-user-id&gt;:latest) and use this image if available. Such images named after the project and user are created and pushed to your private registry when the command "dx-save-cwic" is run in the workspace. The provided image should contain dxfuse and docker if the work in that image will have to be saved and a mounted project will need to be accessed.
+* `image` - a Docker image name to be loaded. If it is not provided, and no credentials file is provided, a default DNAnexus image dnanexus/cwic-base will be used. If credentials to a Docker registry are supplied, it will first check if there is an image specific to the user and project available in that registry (&lt;registry&gt;/&lt;organization&gt;/dx-cwic-&lt;dnanexus-project-id&gt;\_&lt;dnanexus-user-id&gt;:latest) and use this image if available. Such images named after the project and user are created and pushed to your private registry when the command "dx-save-cwic" is run in the workspace. The provided image should contain dxfuse and docker if the work in that image will have to be saved and a mounted project will need to be accessed.
 
 * `cmd` - A command to be run in the user's environment (Docker image). If "image" is provided, the command will be run in the container run from that image (see the description of the "image" input). The command is evaluated using a bash shell, which will expand wildcards and shell variables.
 
@@ -67,14 +67,14 @@ The command below will run the cwic instance started from the DNAnexus Docker im
 $ dx run app-cwic --ssh
 ```
 
-Like above the command below will run cwic started from the DNAnexus image dnanexus/cwic-base and since "credentials" file is given when the user runs "dx-save-cwic" in the Docker container, the environment will be saved as a new Docker layer added to the image the app was started from and pushed to the Docker registry specified in "credentials":
+Like above, the command below will run cwic started from the DNAnexus image dnanexus/cwic-base and since "credentials" file is given when the user runs "dx-save-cwic" in the Docker container, the environment will be saved as a new Docker layer added to the image the app was started from and pushed to the Docker registry specified in "credentials":
 
 ```
 $ dx run app-cwic --ssh \
     -icredentials=my_cred_project:credentials.json \
 ```
 
-Like above this command will run the cwic instance, execute the "ls -l" command, and exit:
+Like above, this command will run the cwic instance, execute the "ls -l" command, and exit:
 
 ```
 $ dx run app-cwic \

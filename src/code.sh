@@ -20,9 +20,6 @@ main() {
             echo "ERROR: run it with --ssh to execute cwic interactively or pass a command string in \"cmd\" to execute the comand and exit."
             exit 1
         fi
-
-        # Attach to the Docker container upon sshing into the job LXC container
-        echo "echo; sudo dx-load-cwic" >> ~/.bash_profile
     fi
 
     if [ -n "$credentials" ]; then
