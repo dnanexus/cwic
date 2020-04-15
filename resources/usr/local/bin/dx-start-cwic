@@ -2,26 +2,38 @@
 
 set -e
 
-if command -v dxfuse >/dev/null 2>&1; then
-    source /home/dnanexus/environment
-
-    MOUNT_POINT=/project
+# if user provided their authentication token in the input, use it
+# otherwise source environment to make use of the job's token
+if command -v dx >/dev/null 2>&1; then
+    user_token=$(jq -r '.dnanexus.token' /home/dnanexus/credentials)
+    if [[ -n $user_token && $user_token != "null" ]]; then
+        dx login --noprojects --token $user_token
+        export DX_PROJECT_CONTEXT_ID=$(jq -r '.project' /home/dnanexus/dnanexus-job.json)
+    else
+        source /home/dnanexus/environment
+    fi
     DX_PROJECT_NAME=$(dx describe $DX_PROJECT_CONTEXT_ID  --json | jq .name)
-    echo "Mounting ${DX_PROJECT_NAME} in $MOUNT_POINT"
+fi
+
+if command -v dxfuse >/dev/null 2>&1; then
+    MOUNT_POINT=/project
+    if [[ -n $DX_PROJECT_NAME ]]; then
+        echo "Mounting ${DX_PROJECT_NAME} in $MOUNT_POINT"
+    else
+        echo "Mounting ${DX_PROJECT_CONTEXT_ID} in $MOUNT_POINT"
+    fi
     if dxfuse -verbose 2 -uid $(id -u) -gid $(id -g) $MOUNT_POINT $DX_PROJECT_CONTEXT_ID; then
         echo "Mounted"
     else
         echo "ERROR: Tailing /var/log/dxfuse.log.."
         tail /var/log/dxfuse.log
     fi
-
     echo "NOTE: /scratch and /project directories will *not* be persisted in a Docker image saved by dx-save-cwic (docker commit)"
-
-    echo "Executing: $@"
-    eval "$@"
-    dxfuse -sync
-else
-    echo "Executing: $@"
-    eval "$@"
 fi
 
+echo "Executing: $@"
+eval "$@"
+
+if command -v dxfuse >/dev/null 2>&1; then
+    dxfuse -sync
+fi
