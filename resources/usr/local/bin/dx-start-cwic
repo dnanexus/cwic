@@ -5,10 +5,14 @@ set -e
 # if user provided their authentication token in the input, use it
 # otherwise source environment to make use of the job's token
 if command -v dx >/dev/null 2>&1; then
-    user_token=$(jq -r '.dnanexus.token' /home/dnanexus/credentials)
-    if [[ -n $user_token && $user_token != "null" ]]; then
-        dx login --noprojects --token $user_token
-        export DX_PROJECT_CONTEXT_ID=$(jq -r '.project' /home/dnanexus/dnanexus-job.json)
+    if [[ -f /home/dnanexus/credentials ]]; then
+        user_token=$(jq -r '.dnanexus.token' /home/dnanexus/credentials)
+        if [[ -n $user_token && $user_token != "null" ]]; then
+            dx login --noprojects --token $user_token
+            export DX_PROJECT_CONTEXT_ID=$(jq -r '.project' /home/dnanexus/dnanexus-job.json)
+        else
+            source /home/dnanexus/environment
+        fi
     else
         source /home/dnanexus/environment
     fi
