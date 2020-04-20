@@ -12,7 +12,7 @@
       "label": "Docker image name",
       "class": "string",
       "optional": true,
-      "help": "Docker image name to be loaded. If it is not provided, and no credential file is provided, a default dnanexus/cwic-base:latest will be used. See Readme for details"
+      "help": "Docker image name to be loaded. If it is not provided, and no credential file is provided, a default dnanexus/cwic-base will be used. See Readme for details"
     },
     {
       "name": "cmd",

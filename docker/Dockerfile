@@ -50,7 +50,8 @@ WORKDIR /home/dnanexus
 ENV HOME=/home/dnanexus
 
 # Set cwic prompt
-RUN echo 'PS1="$(tput setaf 3)$(tput bold)root@cwic:\\w# $(tput sgr0)"' >> /etc/bash.bashrc
+RUN echo 'PS1="\001$(tput setaf 3)\002\001$(tput bold)\002root@cwic:\\w# \001$(tput sgr0)\002"' >> /etc/bash.bashrc
 
-# Update stty size upon login to the container (stty size is used by dx printing utility)
-RUN echo 'stty columns $COLUMNS; stty rows $LINES' >> /etc/bash.bashrc
+# Update stty size upon login to the container (stty size is used by dx printing
+# functions for proper formatting), if COLUMNS and LINES variables are passed
+RUN echo 'if [[ -n $COLUMNS ]]; then stty columns $COLUMNS; fi; if [[ -n $LINES ]]; then stty rows $LINES; fi' >> /etc/bash.bashrc
