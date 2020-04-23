@@ -14,4 +14,12 @@ fi
 
 eval "$(register-python-argcomplete dx|sed 's/-o default//')"
 
-echo; sudo dx-load-cwic
+if ! grep -q "sudo dx-load-cwic" ~/.bashrc; then
+    # Adding a call to run the CWIC loading script to ~/.bashrc so that CWIC
+    # is loaded when a new byobu (tmux) window is opened, e.g. with ctrl a c.
+    # A check is made if we are in a tmux session otherwise "source ~/.bashrc" 
+    # at the top of this script (~/.bash_profile) will attach the CWIC docker
+    # container and prevent loading byobu.
+    echo 'if { [ "$TERM" = "screen" ] && [ -n "$TMUX" ]; } then sudo dx-load-cwic; fi' >> ~/.bashrc
+    sudo dx-load-cwic
+fi
