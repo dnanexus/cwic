@@ -8,22 +8,34 @@ if [[ $1 == "--help" || $1 == "-h" ]]; then
     exit
 fi
 
-command -v dxfuse >/dev/null 2>&1 || (echo "ERROR: dxfuse is required in the cwic Docker container."; exit 1)
+command -v dxfuse > /dev/null 2>&1 || (echo "ERROR: dxfuse is required in the cwic Docker container."; exit 1)
+command -v dx > /dev/null 2>&1 || (echo "ERROR: dx is required in the cwic Docker container."; exit 1)
 
-if [[ -f /home/dnanexus/environment ]]; then
-    source /home/dnanexus/environment
-fi
-
-if [[ -n $DX_SECURITY_CONTEXT ]]; then
-    MOUNT_POINT=/project
-    DX_PROJECT_NAME=$(dx describe $DX_PROJECT_CONTEXT_ID  --json | jq .name)
-    echo "Mounting ${DX_PROJECT_NAME} in $MOUNT_POINT"
-    dxfuse -sync
-    umount $MOUNT_POINT
-    if dxfuse -verbose 2 -uid $(id -u) -gid $(id -g) $MOUNT_POINT $DX_PROJECT_CONTEXT_ID; then
-        echo "Mounted"
+if ! dx whoami > /dev/null 2>&1; then
+    if [ -f /home/dnanexus/environment ]; then
+        echo "Accessing the DNAnexus platform using job's API token"
+        source /home/dnanexus/environment
     else
-        echo "ERROR: Tailing /var/log/dxfuse.log.."
-        tail /var/log/dxfuse.log
+       echo "Error: no access to the DNAnexus platform. Please log in using 'dx login'"
+       exit 1
     fi
 fi
+
+MOUNT_POINT=/project
+DX_PROJECT_CONTEXT_ID=$(jq -r '.project' /home/dnanexus/dnanexus-job.json)
+DX_PROJECT_NAME=$(dx describe $DX_PROJECT_CONTEXT_ID  --json | jq .name)
+
+# Push local files to the remote project only if the project is already mounted
+if mountpoint -q $MOUNT_POINT; then
+    dxfuse -sync
+    umount $MOUNT_POINT
+fi
+
+echo "Mounting ${DX_PROJECT_NAME} in $MOUNT_POINT"
+if dxfuse -verbose 2 -uid $(id -u) -gid $(id -g) $MOUNT_POINT $DX_PROJECT_CONTEXT_ID; then
+    echo "Mounted"
+else
+    echo "ERROR: Tailing /var/log/dxfuse.log.."
+    tail /var/log/dxfuse.log
+fi
+
