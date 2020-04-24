@@ -9,6 +9,7 @@ if command -v dx >/dev/null 2>&1; then
         user_token=$(jq -r '.dnanexus.token' /home/dnanexus/credentials)
         if [[ -n $user_token && $user_token != "null" ]]; then
             dx login --noprojects --token $user_token
+            dx whoami
             export DX_PROJECT_CONTEXT_ID=$(jq -r '.project' /home/dnanexus/dnanexus-job.json)
         else
             source /home/dnanexus/environment

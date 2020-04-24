@@ -23,13 +23,14 @@ main() {
     fi
 
     if [ -n "$credentials" ]; then
-
-        mark-section "downloading and parsing credentials to the Docker container registry"
+        mark-section "downloading credentials"
         dx download "$credentials" -o credentials
+    fi
 
+    if [ -f /home/dnanexus/credentials ] && [ $(jq '.docker_registry' /home/dnanexus/credentials) != null ]; then
         source /usr/local/bin/dx-registry-login
-
         mark-section "determining image name we will use"
+
         if [ -n "$image" ]; then
             if docker pull $image; then
                 echo "Using Docker image name: $image"

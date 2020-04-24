@@ -10,7 +10,7 @@ fi
 
 command -v docker >/dev/null 2>&1 || (echo "ERROR: docker is required in the cwic Docker container."; exit 1)
 
-mark-section "parsing credentials input file"
+mark-section "parsing credentials to the Docker container registry"
 
 CREDENTIALS=/home/dnanexus/credentials
 if [[ ! -f "$CREDENTIALS" ]]; then
