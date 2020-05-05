@@ -3,7 +3,7 @@
   "title": "CWIC - cloud workstation in container",
   "summary": "Develop and scale in a portable interactive cloud environment",
   "dxapi": "1.0.0",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "billTo": "org-dnanexus",
   "openSource": true,
   "inputSpec": [
@@ -46,7 +46,7 @@
       "allProjects": "VIEW"
   },
   "details": {
-    "whatsNew": "* 0.0.3: Bug fixes\n\n* 0.0.2: Pass DNAnexus user token in credentials and use it in Docker container\n\n* 0.0.1: Releasing an alpha version\n"
+    "whatsNew": "* 0.0.4: Load cwic when opening a tmux window; Use dnanexus/cwic-base:0.0.1 as default image; Fix prompt; Bug fixes\n\n* 0.0.3: Bug fixes\n\n* 0.0.2: Pass DNAnexus user token in credentials and use it in Docker container\n\n* 0.0.1: Releasing an alpha version\n"
   },
   "categories": ["Development", "Data Exploration"],
   "regionalOptions": {
