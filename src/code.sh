@@ -27,7 +27,7 @@ main() {
         dx download "$credentials" -o credentials
     fi
 
-    if [ -f /home/dnanexus/credentials ] && [ $(jq '.docker_registry' /home/dnanexus/credentials) != null ]; then
+    if [ -f /home/dnanexus/credentials ] && [ "$(jq '.docker_registry' /home/dnanexus/credentials)" != null ]; then
         source /usr/local/bin/dx-registry-login
         mark-section "determining image name we will use"
 
