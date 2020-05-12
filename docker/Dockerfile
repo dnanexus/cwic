@@ -38,7 +38,7 @@ RUN pip3 install --no-cache-dir \
     dxpy
 
 # Install dxfuse
-RUN wget https://github.com/dnanexus/dxfuse/releases/download/v0.20/dxfuse-linux -P /usr/local/bin/ \
+RUN wget https://github.com/dnanexus/dxfuse/releases/download/v0.22.1/dxfuse-linux -P /usr/local/bin/ \
     && mv /usr/local/bin/dxfuse-linux /usr/local/bin/dxfuse \
     && chmod +x /usr/local/bin/dxfuse
 

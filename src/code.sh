@@ -6,7 +6,7 @@ main() {
     echo "Value of cmd: '$cmd'"
     echo "Value of credentials: '$credentials'"
 
-    DXBASEIMG=dnanexus/cwic-base:0.0.1
+    DXBASEIMG=dnanexus/cwic-base:0.0.2
 
     mark-section "checking if cwic will be run interactively or in non-interactive batch mode"
 
