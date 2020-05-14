@@ -1,0 +1,62 @@
+#!/usr/bin/env bash
+
+set -e
+CREDENTIALS_FILE_PATH="${HOME}/credentials"
+JOB_INPUT_FILE="${HOME}/job_input.json"
+ALL_BUT_LAST_ARG=${*:1:$#-1}
+LAST_ARG=${*: -1}
+
+if [ $# -eq 0 ]; then
+    echo -e "No arguments supplied. To run dx-cwic-sub you need to provide at least one argument. For more information start program with -h argument. Exiting..."
+    exit
+fi
+
+if [[ $1 == "--help" || $1 == "-h" ]]; then
+    echo -e "Usage: $0"
+    echo -e "Launches cwic app in batch from inside an interactive cwic session."
+    echo -e "Uses user's auth token if logged in, if not, then uses auth token from DNAnexus config or the credentials file."
+    echo -e "The last argument is expected to be the command run by cwic. It can be preceded by CLI arguments accepted by dx run."
+    echo -e "For more details please check 'dx run -h'."
+    echo -e "Examples:"
+    echo -e "dx-cwic-sub  'ls /project/x; touch /project/x/y'"
+    echo -e "translates to"
+    echo -e "dx run app-cwic -icredentials=creds_file -icmd='ls /project/x; touch /project/x/y'\n"
+    echo -e "dx-cwic-sub --tag t1 --instance-type mem1_ssd1_x2 'ls /project/x; touch /project/x/y'"
+    echo -e "translates to"
+    echo -e "dx run app-cwic --tag t1 --instance-type mem1_ssd1_x2 -icredentials=creds_file -icmd='ls /project/x; touch /project/x/y'"
+    exit
+fi
+
+if [[ "$LAST_ARG" == --* ]]; then
+    echo -e "Last argument should be a CMD, not a flag"
+    exit
+fi
+
+USER=$(dx whoami 2>/dev/null) || true
+if [[ $(dx describe user-"${USER}" --json 2>/dev/null | jq -r ".billTo") == "null" ]] || [[ -z "${USER}" ]]; then
+    echo -e "User is not logged in. Retrieving DNAnexus auth token from the credentials file..."
+    if [[ -f "$CREDENTIALS_FILE_PATH" ]]; then
+        DNANEXUS_TOKEN=$(jq -r ".dnanexus.token" <"${CREDENTIALS_FILE_PATH}")
+    else
+        echo -e "The credentials file does not exist. Please log in and try again. Exiting..."
+        exit 1
+    fi
+    if [[ "${DNANEXUS_TOKEN}" == "null" ]] || [[ -z "${DNANEXUS_TOKEN}" ]]; then
+        echo -e "DNAnexus token is not set in the credentials file. Please provide DNAnexus token or log in. Exiting..."
+        exit 1
+    fi
+    dx login --noprojects --token "$DNANEXUS_TOKEN"
+fi
+
+opts=()
+opts+=($ALL_BUT_LAST_ARG)
+opts+=("-icmd=${LAST_ARG}")
+
+if [[ -f "$JOB_INPUT_FILE" ]]; then
+    CREDENTIALS_ARG="$(jq -r ".credentials" <"${JOB_INPUT_FILE}")"
+    if [[ "${CREDENTIALS_ARG}" != "null" ]]; then
+        opts+=("-icredentials=${CREDENTIALS_ARG}")
+    fi
+fi
+
+dx run app-cwic "${opts[@]}" -y

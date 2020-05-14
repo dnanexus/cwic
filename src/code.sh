@@ -94,10 +94,12 @@ main() {
         -v /usr/local/bin/mark-section:/usr/local/bin/mark-section
         -v /usr/local/bin/dx-registry-login:/usr/local/bin/dx-registry-login
         -v /usr/local/bin/dx-save-cwic:/usr/local/bin/dx-save-cwic
+        -v /usr/local/bin/dx-cwic-sub:/usr/local/bin/dx-cwic-sub
         -v /usr/local/bin/dx-start-cwic:/usr/local/bin/dx-start-cwic
         -v /usr/local/bin/dx-save-project:/usr/local/bin/dx-save-project
         -v /usr/local/bin/dx-find-cwic-jobs:/usr/local/bin/dx-find-cwic-jobs
         -v /usr/local/bin/dx-reload-project:/usr/local/bin/dx-reload-project
+        -v /home/dnanexus/job_input.json:/home/dnanexus/job_input.json
         -v /home/dnanexus/dnanexus-job.json:/home/dnanexus/dnanexus-job.json:ro
         -v /home/dnanexus/environment:/home/dnanexus/environment:ro
         -v /home/dnanexus/.docker:/home/dnanexus/.docker
