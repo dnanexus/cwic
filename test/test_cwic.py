@@ -1,18 +1,30 @@
 import os
 import time
 import unittest
+from importlib.machinery import SourceFileLoader
+from importlib.util import spec_from_loader, module_from_spec
+
 import dxpy
 import dxpy.api
 import dxpy.app_builder
-from contextlib import contextmanager
 from dxpy.exceptions import DXAPIError, DXJobFailureError
 
 
-src_dir = os.path.join(os.path.dirname(__file__), "..")
+#  https://stackoverflow.com/questions/2601047/import-a-python-module-without-the-py-extension
+def import_module(module_name: str, module_path: str):
+    spec = spec_from_loader(module_name, SourceFileLoader(module_name, module_path))
+    module = module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
+src_dir = os.path.join(os.path.dirname(os.path.realpath(__file__)), "..")
+find_cwic_jobs = import_module("dx-find-cwic-jobs", f"{src_dir}/resources/usr/local/bin/dx-find-cwic-jobs")
 DX_PROJECT_ID = 'project-BzQf6k80V3bJk7x0yv6z82j7'
 TEST_TIMESTAMP = str(int(time.time()))
 PROJECT_DX = dxpy.DXProject(DX_PROJECT_ID)
 TEST_FOLDER = '/cwic/test'
+
 
 class TestCwic(unittest.TestCase):
     applet_id = None
@@ -40,7 +52,7 @@ class TestCwic(unittest.TestCase):
             overwrite=True, project=DX_PROJECT_ID, override_folder=TEST_FOLDER
         )
         cls.applet_dx = dxpy.DXApplet(cls.applet_id)
- 
+
     @classmethod
     def tearDownClass(cls):
         print("Clean up by removing the app we created.")
@@ -67,6 +79,16 @@ class TestCwic(unittest.TestCase):
         except dxpy.exceptions.DXJobFailureError:
             failure_mesg = job.describe()["failureMessage"]
             self.assertIn("Error while checking if cwic will be run interactively", failure_mesg)
+
+    def test_get_column_widths(self):
+        example_table = [["max-length-13", "short", "short", "same-length-longest"],
+                         ["shorter", "longer-string-another-characters---", "", "same-length-longest"],
+                         ["string", "example", "very-long-string-this-is-longest", "c"],
+                         ["...", "....", ".....", "CAPITAL_CHARS"]]
+        expected_result = [13, 35, 32, 19]
+        expected_result_max_width_20 = [13, 20, 20, 19]
+        assert find_cwic_jobs.get_column_widths(example_table) == expected_result, "max columns widths are different than expected"
+        assert find_cwic_jobs.get_column_widths(example_table, max_width=20) == expected_result_max_width_20, "max columns widths are different than expected"
 
     def test_create_file_in_mounted_project(self):
         """ Test that a file created in a mounted project in cwic is
@@ -95,6 +117,7 @@ class TestCwic(unittest.TestCase):
             dxpy.api.container_remove_objects(
                 DX_PROJECT_ID, {"objects": f_ids}
             )
+
 
 if __name__ == '__main__':
     unittest.main()

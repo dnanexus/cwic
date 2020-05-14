@@ -74,7 +74,7 @@ main() {
     #   are needed to access registry cwic scripts in the container
     # * The option:
     #     -v /var/run/docker.sock:/var/run/docker.sock
-    #   is needed to access Docker deamon from the host in the container 
+    #   is needed to access Docker deamon from the host in the container
     # * The option:
     #     -v /home/dnanexus/*:/home/dnanexus/*:ro \
     #   gives us access to input files and dx-specific variables & files
@@ -96,6 +96,7 @@ main() {
         -v /usr/local/bin/dx-save-cwic:/usr/local/bin/dx-save-cwic
         -v /usr/local/bin/dx-start-cwic:/usr/local/bin/dx-start-cwic
         -v /usr/local/bin/dx-save-project:/usr/local/bin/dx-save-project
+        -v /usr/local/bin/dx-find-cwic-jobs:/usr/local/bin/dx-find-cwic-jobs
         -v /usr/local/bin/dx-reload-project:/usr/local/bin/dx-reload-project
         -v /home/dnanexus/dnanexus-job.json:/home/dnanexus/dnanexus-job.json:ro
         -v /home/dnanexus/environment:/home/dnanexus/environment:ro

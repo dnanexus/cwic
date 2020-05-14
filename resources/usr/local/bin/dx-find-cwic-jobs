@@ -1,0 +1,61 @@
+#!/usr/bin/env python3
+from datetime import datetime
+from os import environ
+from typing import List
+
+import dxpy
+from dxpy.exceptions import InvalidAuthentication
+
+
+def get_column_widths(table: List[List], max_width: int = -1) -> List:
+    max_widths = [0] * len(table[0])
+    for line in table:
+        for idx, cell in enumerate(line):
+            if len(str(cell)) > max_widths[idx]:
+                max_widths[idx] = min(len(str(cell)), max_width) if max_width > 0 else len(str(cell))
+    return max_widths
+
+
+def print_table(table: List[List], headers: List = None, max_width: int = -1) -> None:
+    truncate_suffix = "..."
+
+    if 0 <= max_width <= len(truncate_suffix):
+        raise ValueError(f"max_width cannot be larger than 0 and smaller than {len(truncate_suffix)}.")
+    if len(headers) != len(table[0]):
+        raise ValueError(f"Headers must have same length as table's rows. Headers length was {len(headers)} but table's row length was {len(table[0])}")
+
+    # creating copy, in order not to update given table
+    table_copy = table[:]
+    if headers:
+        table_copy.insert(0, headers)
+    widths = get_column_widths(table_copy, max_width=max_width)
+    for line in table_copy:
+        for idx, cell in enumerate(line):
+            cell = str(cell)
+            str_to_print = (cell[:max_width - len(truncate_suffix)] + truncate_suffix) if len(cell) > max_width > 0 else cell
+            print(f'{str_to_print:{widths[idx]}}', end="  ")
+        print()
+
+
+def get_time_from_epoch(epoch: int or float) -> str:
+    return datetime.fromtimestamp(epoch / 1000.0).strftime('%Y-%m-%d %H:%M:%S')
+
+
+if __name__ == "__main__":
+    try:
+        dxpy.whoami()
+    except InvalidAuthentication:
+        print("Error: no access to the DNAnexus platform. Please log in using 'dx login'")
+        exit(1)
+
+    jobs = dxpy.find_jobs(executable="app-cwic", project=environ.get("DX_PROJECT_CONTEXT_ID"),
+                          describe={"fields": {"id": True, "input": True, "launchedBy": True, "state": True, "instanceType": True, "created": True,
+                                               "properties": True, "tags": True, "name": True}})
+
+    descriptions = map(lambda exec: exec["describe"], jobs)
+    cwic_jobs_info = list(map(lambda desc: [desc["id"], desc["launchedBy"], desc["state"], desc["instanceType"], desc.get("input", {}).get("cmd", desc["name"]),
+                                            get_time_from_epoch(desc["created"]), desc["tags"], desc["properties"]], descriptions))
+    cwic_jobs_info.sort(key=lambda info: info[0])  # sorts by job id
+
+    headers = ["JOB_ID", "USER", "STATE", "INSTANCE_TYPE", "CMD_OR_JOB_NAME", "LAUNCH_TIME", "TAGS", "PROPERTIES"]
+    print_table(cwic_jobs_info, headers=headers, max_width=60)
