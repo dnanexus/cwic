@@ -4,6 +4,7 @@ set -e
 
 # if user provided their authentication token in the input, use it
 # otherwise source environment to make use of the job's token
+# the token is required to dxfuse-mount the project
 if command -v dx >/dev/null 2>&1; then
     if [[ -f /home/dnanexus/credentials ]]; then
         user_token=$(jq -r '.dnanexus.token' /home/dnanexus/credentials)
@@ -19,6 +20,10 @@ if command -v dx >/dev/null 2>&1; then
     fi
     DX_PROJECT_NAME=$(dx describe $DX_PROJECT_CONTEXT_ID  --json | jq .name)
 fi
+
+# Make sure HOME is /home/cwic, which may haven been overwritten
+# if /home/dnanexus/environment is sourced
+export HOME=/home/cwic
 
 if command -v dxfuse >/dev/null 2>&1; then
     MOUNT_POINT=/project

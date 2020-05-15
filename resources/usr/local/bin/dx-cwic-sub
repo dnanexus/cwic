@@ -7,8 +7,9 @@ if [ $# -eq 0 ]; then
     exit
 fi
 
-CREDENTIALS_FILE_PATH="${HOME}/credentials"
-JOB_INPUT_FILE="${HOME}/job_input.json"
+DNANEXUS_HOME=/home/dnanexus
+CREDENTIALS_FILE_PATH="${DNANEXUS_HOME}/credentials"
+JOB_INPUT_FILE="${DNANEXUS_HOME}/job_input.json"
 ALL_BUT_LAST_ARG=${*:1:$#-1}
 LAST_ARG=${*: -1}
 

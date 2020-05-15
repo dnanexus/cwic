@@ -6,7 +6,7 @@ main() {
     echo "Value of cmd: '$cmd'"
     echo "Value of credentials: '$credentials'"
 
-    DXBASEIMG=dnanexus/cwic-base:0.0.2
+    DXBASEIMG=dnanexus/cwic-base:0.0.3
 
     mark-section "checking if cwic will be run interactively or in non-interactive batch mode"
 
@@ -68,51 +68,59 @@ main() {
     # will *not* be saved in the Docker layer when "docker commit" is run.
     mkdir /scratch
 
-    mark-section "starting Docker container"
-    # * The options:
-    #     -v /usr/local/bin/*:/usr/local/bin/*:ro
-    #   are needed to access registry cwic scripts in the container
-    # * The option:
-    #     -v /var/run/docker.sock:/var/run/docker.sock
-    #   is needed to access Docker deamon from the host in the container
-    # * The option:
-    #     -v /home/dnanexus/*:/home/dnanexus/*:ro \
-    #   gives us access to input files and dx-specific variables & files
-    #   and doesn not save these files with docker commit
-    # * The option:
-    #     -v /tmp/.dummy:/home/dnanexus/.dnanexus_config
-    #   prevents /home/dnanexus/.dnanexus_config from saving with docker commit
-    # * The options:
-    #     --device /dev/fuse \
-    #     --cap-add SYS_ADMIN \
-    #     --cap-add MKNOD \
-    #     --security-opt apparmor=unconfined \
-    #   are needed for fuse mounting projects in the running container
+    dx_scripts=(
+        mark-section
+        dx-registry-login
+        dx-save-cwic
+        dx-start-cwic
+        dx-save-project
+        dx-reload-project
+        dx-cwic-sub
+        dx-find-cwic-jobs
+    )
+    v_scripts=""
+    for i in ${dx_scripts[@]}; do
+        v_scripts="$v_scripts -v /usr/local/bin/$i:/usr/local/bin/$i "
+    done
+ 
+    dx_home_dnanexus=(
+        dnanexus-job.json
+        environment
+        credentials
+        job_error.json
+        job_input.json
+    )
+    v_home_dnanexus=""
+    for i in ${dx_home_dnanexus[@]}; do
+        v_home_dnanexus="$v_home_dnanexus -v /home/dnanexus/$i:/home/dnanexus/$i "
+    done
 
-    opts="--init
+    # prevents confidential files from saving with docker commit
+    # incl in /home/dnanexus in case HOME is accidentally set to it
+    v_dont_save="
         -v /scratch:/scratch
-        -v /usr/local/bin/mark-section:/usr/local/bin/mark-section
-        -v /usr/local/bin/dx-registry-login:/usr/local/bin/dx-registry-login
-        -v /usr/local/bin/dx-save-cwic:/usr/local/bin/dx-save-cwic
-        -v /usr/local/bin/dx-cwic-sub:/usr/local/bin/dx-cwic-sub
-        -v /usr/local/bin/dx-start-cwic:/usr/local/bin/dx-start-cwic
-        -v /usr/local/bin/dx-save-project:/usr/local/bin/dx-save-project
-        -v /usr/local/bin/dx-find-cwic-jobs:/usr/local/bin/dx-find-cwic-jobs
-        -v /usr/local/bin/dx-reload-project:/usr/local/bin/dx-reload-project
-        -v /home/dnanexus/job_input.json:/home/dnanexus/job_input.json
-        -v /home/dnanexus/dnanexus-job.json:/home/dnanexus/dnanexus-job.json:ro
-        -v /home/dnanexus/environment:/home/dnanexus/environment:ro
-        -v /home/dnanexus/.docker:/home/dnanexus/.docker
-        -v /tmp/.dummy:/home/dnanexus/.dnanexus_config
-        -v /home/dnanexus/credentials:/home/dnanexus/credentials
-        -v /var/run/docker.sock:/var/run/docker.sock
-        --device /dev/fuse
+        -v /tmp/.dummy0:/home/cwic/.dnanexus_config
+        -v /tmp/.dummy1:/home/cwic/.docker
+        -v /tmp/.dummy2:/home/dnanexus/.dnanexus_config
+        -v /tmp/.dummy3:/home/dnanexus/.docker"
+
+    enable_fuse="--device /dev/fuse
         --cap-add SYS_ADMIN
         --cap-add MKNOD
-        --security-opt apparmor=unconfined
+        --security-opt apparmor=unconfined"
+
+    opts="--init
+        $v_scripts
+        $v_home_dnanexus
+        $v_dont_save
+        $enable_fuse
+        -v /var/run/docker.sock:/var/run/docker.sock
         --entrypoint /usr/local/bin/dx-start-cwic
+        --workdir /home/cwic
+        -e HOME=/home/cwic
         --name cwic"
 
+    mark-section "starting Docker container"
     set -x
     if [[ -n "$cmd" ]]; then
        docker run $opts $image "$cmd"

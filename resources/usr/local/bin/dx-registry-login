@@ -4,7 +4,7 @@ set -e
 
 if [[ $1 == "--help" || $1 == "-h" ]]; then
     echo -e "Usage: $0"
-    echo -e "Logins into a Docker registry specified in $HOME/credentials input file"
+    echo -e "Logins into a Docker registry specified in /home/dnanexus/credentials input file"
     exit
 fi
 

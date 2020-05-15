@@ -15,6 +15,7 @@ if ! dx whoami > /dev/null 2>&1; then
     if [ -f /home/dnanexus/environment ]; then
         echo "Accessing the DNAnexus platform using job's API token"
         source /home/dnanexus/environment
+        export HOME=/home/cwic
     else
        echo "Error: no access to the DNAnexus platform. Please log in using 'dx login'"
        exit 1

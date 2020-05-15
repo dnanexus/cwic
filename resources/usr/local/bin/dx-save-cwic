@@ -7,8 +7,8 @@ USER_PROVIDED_IMG=$1
 if [[ $# -gt 2 || $1 == "--help" || $1 == "-h" ]]; then
     echo -e "Usage: $0 <image name (optional)>"
     echo -e "Saves changes in a writable Docker layer as a new image and pushed to registry"
-    echo -e "The image will be pushed to the registry specified in the $HOME/credentials input file passed at the start of the job"
-    echo -e "If the image name is not specified, the name will ne created based on the DNAnexus project and user name"
+    echo -e "The image will be pushed to the registry specified in the /home/dnanexus/credentials input file passed at the start of the job"
+    echo -e "If the image name is not specified, the name will be created based on the DNAnexus project and user name"
     echo -e "This command should be executed in a Docker container running cwic"
     exit
 fi
