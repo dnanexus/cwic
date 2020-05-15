@@ -1,15 +1,16 @@
 #!/usr/bin/env bash
 
 set -e
-CREDENTIALS_FILE_PATH="${HOME}/credentials"
-JOB_INPUT_FILE="${HOME}/job_input.json"
-ALL_BUT_LAST_ARG=${*:1:$#-1}
-LAST_ARG=${*: -1}
 
 if [ $# -eq 0 ]; then
     echo -e "No arguments supplied. To run dx-cwic-sub you need to provide at least one argument. For more information start program with -h argument. Exiting..."
     exit
 fi
+
+CREDENTIALS_FILE_PATH="${HOME}/credentials"
+JOB_INPUT_FILE="${HOME}/job_input.json"
+ALL_BUT_LAST_ARG=${*:1:$#-1}
+LAST_ARG=${*: -1}
 
 if [[ $1 == "--help" || $1 == "-h" ]]; then
     echo -e "Usage: $0"
