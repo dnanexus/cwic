@@ -1,6 +1,7 @@
 import os
 import time
 import unittest
+import uuid
 from importlib.machinery import SourceFileLoader
 from importlib.util import spec_from_loader, module_from_spec
 
@@ -46,7 +47,7 @@ class TestCwic(unittest.TestCase):
             app_name = "test_app"
 
         print("Uploading the applet to the platform")
-        cls.applet_basename = app_name + "_" + TEST_TIMESTAMP
+        cls.applet_basename = app_name + "_" + str(uuid.uuid4())
         cls.applet_id, _ignored_applet_spec = dxpy.app_builder.upload_applet(
             src_dir, bundled_resources, override_name=cls.applet_basename,
             overwrite=True, project=DX_PROJECT_ID, override_folder=TEST_FOLDER
@@ -112,12 +113,11 @@ class TestCwic(unittest.TestCase):
         self.assertIn(file_name, file_names)
 
         # Clean up: get the ID of the created file and remove it
-        f_ids = [f["describe"]["id"] for f in list_folder["objects"] if f["describe"]["name"] == file_name]
+        f_ids = [f["describe"]["id"] for f in list_folder["objects"] if f["describe"]["name"] == file_name and f["describe"]["id"].startswith("file")]
         if f_ids:
             dxpy.api.container_remove_objects(
                 DX_PROJECT_ID, {"objects": f_ids}
             )
-
 
     def test_check_home_directory(self):
         """ Test that the home directory inside Docker is /home/cwic """
