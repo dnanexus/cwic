@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+
+DNANEXUS_HOME="/home/dnanexus"
+JOB_INPUT_FILE="${DNANEXUS_HOME}/job_input.json"
+
+READ_ONLY="-readOnly"
+if [[ -f "$JOB_INPUT_FILE" ]] && [[ "$(jq -r ".project_mount_options" <"${JOB_INPUT_FILE}")" != "-readOnly" ]]; then
+    READ_ONLY=""
+fi
+
+if dxfuse $READ_ONLY $@; then
+    echo "Mounted"
+else
+    echo "ERROR: Tailing /var/log/dxfuse.log.."
+    tail /var/log/dxfuse.log
+fi
+echo "NOTE: /scratch and /project directories will *not* be persisted in a Docker image saved by dx-save-cwic (docker commit)"

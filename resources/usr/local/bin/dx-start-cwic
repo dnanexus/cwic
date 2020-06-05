@@ -36,13 +36,7 @@ if command -v dxfuse >/dev/null 2>&1; then
     else
         echo "Mounting ${DX_PROJECT_CONTEXT_ID} in $MOUNT_POINT"
     fi
-    if dxfuse -verbose 2 -uid $(id -u) -gid $(id -g) $MOUNT_POINT $DX_PROJECT_CONTEXT_ID; then
-        echo "Mounted"
-    else
-        echo "ERROR: Tailing /var/log/dxfuse.log.."
-        tail /var/log/dxfuse.log
-    fi
-    echo "NOTE: /scratch and /project directories will *not* be persisted in a Docker image saved by dx-save-cwic (docker commit)"
+    dxfuse-mount -verbose 2 -uid $(id -u) -gid $(id -g) $MOUNT_POINT $DX_PROJECT_CONTEXT_ID
 fi
 
 # Set DX_WORKSPACE_ID to project so that dx upload uploads to project and not to job workspace in non-interactive mode
@@ -53,6 +47,6 @@ fi
 echo "Executing: $@"
 eval "$@"
 
-if command -v dxfuse >/dev/null 2>&1; then
-    dxfuse -sync
-fi
+dxfuse-sync
+
+

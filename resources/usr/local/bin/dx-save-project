@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+
 set -e
 
 if [[ $1 == "--help" || $1 == "-h" ]]; then
@@ -10,4 +11,4 @@ fi
 
 command -v dxfuse >/dev/null 2>&1 || (echo "ERROR: dxfuse is required in the cwic Docker container."; exit 1)
 
-dxfuse -sync
+dxfuse-sync

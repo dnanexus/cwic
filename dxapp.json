@@ -30,6 +30,14 @@
         "*"
       ],
       "help": "A file storing an access token and user login information to a Docker registry where a Docker image holding the user's cwic instance will be stored"
+    },
+    {
+      "name": "project_mount_options",
+      "label": "Project mount options",
+      "class": "string",
+      "optional": true,
+      "help": "Mount options for project, set to '-w' in order to mount project with write access otherwise read only mode will be used",
+      "default": "-readOnly"
     }
   ],
   "outputSpec": [],

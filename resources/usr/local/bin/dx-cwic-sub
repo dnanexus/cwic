@@ -10,6 +10,7 @@ fi
 DNANEXUS_HOME=/home/dnanexus
 CREDENTIALS_FILE_PATH="${DNANEXUS_HOME}/credentials"
 JOB_INPUT_FILE="${DNANEXUS_HOME}/job_input.json"
+JOB_INFO_FILE="${DNANEXUS_HOME}/dnanexus-job.json"
 ALL_BUT_LAST_ARG=${*:1:$#-1}
 LAST_ARG=${*: -1}
 
@@ -20,12 +21,12 @@ if [[ $1 == "--help" || $1 == "-h" ]]; then
     echo -e "The last argument is expected to be the command run by cwic. It can be preceded by CLI arguments accepted by dx run."
     echo -e "For more details please check 'dx run -h'."
     echo -e "Examples:"
-    echo -e "dx-cwic-sub  'ls /project/x; touch /project/x/y'"
+    echo -e "dx-cwic-sub 'mkdir x; touch x/y; dx mkdir x; dx cd x; dx upload x/y'"
     echo -e "translates to"
-    echo -e "dx run app-cwic -icredentials=creds_file -icmd='ls /project/x; touch /project/x/y'\n"
-    echo -e "dx-cwic-sub --tag t1 --instance-type mem1_ssd1_x2 'ls /project/x; touch /project/x/y'"
+    echo -e "dx run app-cwic -icredentials=creds_file -icmd='mkdir x; touch x/y; dx mkdir x; dx cd x; dx upload x/y'\n"
+    echo -e "dx-cwic-sub --tag t1 --instance-type mem1_ssd1_x2 -iproject_mount_options='-w' 'ls /project/proj; touch /project/proj/file'"
     echo -e "translates to"
-    echo -e "dx run app-cwic --tag t1 --instance-type mem1_ssd1_x2 -icredentials=creds_file -icmd='ls /project/x; touch /project/x/y'"
+    echo -e "dx run app-cwic --tag t1 --instance-type mem1_ssd1_x2 -iproject_mount_options='-w' -icredentials=creds_file -icmd='ls /project/proj; touch /project/proj/file'"
     exit
 fi
 
@@ -61,4 +62,15 @@ if [[ -f "$JOB_INPUT_FILE" ]]; then
     fi
 fi
 
-dx run app-cwic "${opts[@]}" -y
+APP_NAME="app-cwic"
+if [[ -f "$JOB_INFO_FILE" ]]; then
+  NAME="$(jq -r ".app" <"${JOB_INFO_FILE}")"
+  if [[ "${NAME}" == "null" ]]; then
+    NAME="$(jq -r ".applet" <"${JOB_INFO_FILE}")"
+  fi
+  if [[ "${NAME}" != "null" ]]; then
+    APP_NAME=${NAME}
+  fi
+fi
+
+dx run ${APP_NAME} "${opts[@]}" -y

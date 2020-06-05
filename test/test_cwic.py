@@ -109,14 +109,29 @@ class TestCwic(unittest.TestCase):
         job.wait_on_done()
         TU.check_if_exists_and_delete(file_name, DX_PROJECT_ID, TEST_FOLDER)
 
-    def test_create_file_in_mounted_project(self):
+    def test_project_is_not_mounted(self):
+        file_name = f"test_no_credentials_{TEST_TIMESTAMP}.txt"
+        DX_PROJECT_NAME = PROJECT_DX.describe()["name"]
+        input_args = {
+            "cmd": f"touch \"/project/{DX_PROJECT_NAME}{TEST_FOLDER}/{file_name}\""
+        }
+        job = self.applet_dx.run(
+            input_args,
+            folder=TEST_FOLDER,
+            project=DX_PROJECT_ID,
+            name=self.applet_basename
+        )
+        TU.check_job_is_unsuccessful(job)
+
+    def test_create_file_in_mounted_project_with_write_access(self):
         """ Test that a file created in a mounted project in cwic is
         accessible from the platform"""
         DX_PROJECT_NAME = PROJECT_DX.describe()["name"]
 
         file_name = "test_foo_{}.txt".format(TEST_TIMESTAMP)
         input_args = {
-            "cmd": "touch \"/project/{}{}/{}\"".format(DX_PROJECT_NAME, TEST_FOLDER, file_name)
+            "cmd": f"touch \"/project/{DX_PROJECT_NAME}{TEST_FOLDER}/{file_name}\"",
+            "project_mount_options": "-w"
         }
         job = self.applet_dx.run(
             input_args,
@@ -162,11 +177,6 @@ chmod +x /usr/bin/samtools
 # Removing 20 21 22 since they result in files 100-200M
 chromosomes="1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 X Y MT"
 
-#TODO: remove once APPS-66 is completed
-source /home/dnanexus/environment
-unset DX_WORKSPACE_ID
-dx cd $DX_PROJECT_CONTEXT_ID:
-
 # Take md5 sum of each sorted bam and compare to the md5sum
 # when they are read in the dxfuse-mounted project
 for chr in $chromosomes; do
@@ -205,13 +215,7 @@ done
             project=DX_PROJECT_ID,
             name=self.applet_basename
         )
-        try:
-            job.wait_on_done()
-            # if job continued, fail this test
-            raise Exception("Job should have failed with DXJobFailureError")
-        except dxpy.exceptions.DXJobFailureError:
-            failure_mesg = job.describe()["failureMessage"]
-            self.assertIn("Error", failure_mesg)
+        TU.check_job_is_unsuccessful(job)
 
 if __name__ == '__main__':
     unittest.main()

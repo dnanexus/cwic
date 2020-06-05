@@ -14,3 +14,13 @@ class test_utils():
             dxpy.api.container_remove_objects(
                 project_id, {"objects": f_ids}
             )
+
+    @staticmethod
+    def check_job_is_unsuccessful(job):
+        try:
+            job.wait_on_done()
+            # if job continued, fail this test
+            raise Exception("Job should have failed with DXJobFailureError")
+        except dxpy.exceptions.DXJobFailureError:
+            failure_msg = job.describe()["failureMessage"]
+            assert "Error" in failure_msg

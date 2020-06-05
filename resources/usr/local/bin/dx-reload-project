@@ -28,15 +28,10 @@ DX_PROJECT_NAME=$(dx describe $DX_PROJECT_CONTEXT_ID  --json | jq .name)
 
 # Push local files to the remote project only if the project is already mounted
 if mountpoint -q $MOUNT_POINT; then
-    dxfuse -sync
+    dxfuse-sync
     umount $MOUNT_POINT
 fi
 
 echo "Mounting ${DX_PROJECT_NAME} in $MOUNT_POINT"
-if dxfuse -verbose 2 -uid $(id -u) -gid $(id -g) $MOUNT_POINT $DX_PROJECT_CONTEXT_ID; then
-    echo "Mounted"
-else
-    echo "ERROR: Tailing /var/log/dxfuse.log.."
-    tail /var/log/dxfuse.log
-fi
+dxfuse-mount -verbose 2 -uid $(id -u) -gid $(id -g) $MOUNT_POINT $DX_PROJECT_CONTEXT_ID
 

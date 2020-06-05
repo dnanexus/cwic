@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+
+JOB_INPUT_FILE="/home/dnanexus/job_input.json"
+
+if command -v dxfuse >/dev/null 2>&1 && [[ -f "$JOB_INPUT_FILE" ]] && [[ "$(jq -r ".project_mount_options" <"${JOB_INPUT_FILE}")" != "-readOnly" ]]; then
+    dxfuse -sync
+else
+    echo "Project is *not* saved because cwic is run in read-only mode! Start cwic with project_mount_options='-w' in order to save project."
+fi

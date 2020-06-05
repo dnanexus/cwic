@@ -70,6 +70,8 @@ main() {
 
     dx_scripts=(
         mark-section
+        dxfuse-mount
+        dxfuse-sync
         dx-registry-login
         dx-save-cwic
         dx-start-cwic
@@ -82,7 +84,7 @@ main() {
     for i in ${dx_scripts[@]}; do
         v_scripts="$v_scripts -v /usr/local/bin/$i:/usr/local/bin/$i "
     done
- 
+
     dx_home_dnanexus=(
         dnanexus-job.json
         environment
