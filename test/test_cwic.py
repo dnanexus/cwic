@@ -10,6 +10,8 @@ import dxpy.api
 import dxpy.app_builder
 from dxpy.exceptions import DXAPIError, DXJobFailureError
 
+from test import test_utils as TU
+
 
 #  https://stackoverflow.com/questions/2601047/import-a-python-module-without-the-py-extension
 def import_module(module_name: str, module_path: str):
@@ -93,6 +95,20 @@ class TestCwic(unittest.TestCase):
             failure_mesg = job.describe()["failureMessage"]
             self.assertIn("Error while checking if cwic will be run interactively", failure_mesg)
 
+    def test_upload_without_credentials(self):
+        file_name = f"test_no_credentials_{TEST_TIMESTAMP}.txt"
+        input_args = {
+            "cmd": f"dx cd {TEST_FOLDER}; touch {file_name}; dx upload {file_name};"
+        }
+        job = self.applet_dx.run(
+            input_args,
+            folder=TEST_FOLDER,
+            project=DX_PROJECT_ID,
+            name=self.applet_basename
+        )
+        job.wait_on_done()
+        TU.check_if_exists_and_delete(file_name, DX_PROJECT_ID, TEST_FOLDER)
+
     def test_create_file_in_mounted_project(self):
         """ Test that a file created in a mounted project in cwic is
         accessible from the platform"""
@@ -110,16 +126,7 @@ class TestCwic(unittest.TestCase):
         )
         print("Waiting for the job {j_id} to complete".format(j_id=job.get_id()))
         job.wait_on_done()
-        list_folder = dxpy.DXProject(DX_PROJECT_ID).list_folder(TEST_FOLDER, describe={"fields": {"id": True, "name": True}})
-        file_names = [i["describe"]["name"] for i in list_folder["objects"]]
-        self.assertIn(file_name, file_names)
-
-        # Clean up: get the ID of the created file and remove it
-        f_ids = [f["describe"]["id"] for f in list_folder["objects"] if f["describe"]["name"] == file_name and f["describe"]["id"].startswith("file")]
-        if f_ids:
-            dxpy.api.container_remove_objects(
-                DX_PROJECT_ID, {"objects": f_ids}
-            )
+        TU.check_if_exists_and_delete(file_name, DX_PROJECT_ID, TEST_FOLDER)
 
     def test_check_home_directory(self):
         """ Test that the home directory inside Docker is /home/cwic """

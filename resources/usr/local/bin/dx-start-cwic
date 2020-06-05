@@ -2,6 +2,10 @@
 
 set -e
 
+DNANEXUS_HOME="/home/dnanexus"
+JOB_INPUT_FILE="${DNANEXUS_HOME}/job_input.json"
+ENV="${DNANEXUS_HOME}/environment"
+
 # if user provided their authentication token in the input, use it
 # otherwise source environment to make use of the job's token
 # the token is required to dxfuse-mount the project
@@ -39,6 +43,11 @@ if command -v dxfuse >/dev/null 2>&1; then
         tail /var/log/dxfuse.log
     fi
     echo "NOTE: /scratch and /project directories will *not* be persisted in a Docker image saved by dx-save-cwic (docker commit)"
+fi
+
+# Set DX_WORKSPACE_ID to project so that dx upload uploads to project and not to job workspace in non-interactive mode
+if [[ -f "$JOB_INPUT_FILE" ]] && [[ "$(jq -r ".cmd" <"${JOB_INPUT_FILE}")" != "null" ]]; then
+    export DX_WORKSPACE_ID=$DX_PROJECT_CONTEXT_ID
 fi
 
 echo "Executing: $@"
