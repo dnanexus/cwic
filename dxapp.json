@@ -3,7 +3,7 @@
   "title": "CWIC - cloud workstation in container",
   "summary": "Develop and scale in a portable interactive cloud environment",
   "dxapi": "1.0.0",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "billTo": "org-dnanexus",
   "openSource": true,
   "inputSpec": [
@@ -37,7 +37,11 @@
       "class": "string",
       "optional": true,
       "help": "Mount options for project, set to '-w' in order to mount project with write access otherwise read only mode will be used",
-      "default": "-readOnly"
+      "default": "-readOnly",
+      "choices": [
+        "-readOnly",
+        "-w"
+      ]
     }
   ],
   "outputSpec": [],
@@ -54,7 +58,7 @@
       "allProjects": "VIEW"
   },
   "details": {
-    "whatsNew": "* 0.0.5: Upgrade dxfuse to v0.22.1\n* 0.0.4: Load cwic when opening a tmux window; Use dnanexus/cwic-base:0.0.1 as default image; Fix prompt; Bug fixes\n* 0.0.3: Bug fixes\n* 0.0.2: Pass DNAnexus user token in credentials and use it in Docker container\n* 0.0.1: Releasing an alpha version\n"
+    "whatsNew": "* 0.0.6: Add dx-find-cwic-jobs and dx-cwic-sub scripts; mount project in read only mode by default; set HOME to /home/cwic; upgrade dxfuse to v0.22.2\n* 0.0.5: Upgrade dxfuse to v0.22.1\n* 0.0.4: Load cwic when opening a tmux window; Use dnanexus/cwic-base:0.0.1 as default image; Fix prompt; Bug fixes\n* 0.0.3: Bug fixes\n* 0.0.2: Pass DNAnexus user token in credentials and use it in Docker container\n* 0.0.1: Releasing an alpha version\n"
   },
   "categories": ["Development", "Data Exploration"],
   "regionalOptions": {
