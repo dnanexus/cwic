@@ -88,10 +88,13 @@ main() {
     dx_home_dnanexus=(
         dnanexus-job.json
         environment
-        credentials
         job_error.json
         job_input.json
     )
+    if [ -n "$credentials" ]; then
+        dx_home_dnanexus+=(credentials)
+    fi
+
     v_home_dnanexus=""
     for i in ${dx_home_dnanexus[@]}; do
         v_home_dnanexus="$v_home_dnanexus -v /home/dnanexus/$i:/home/dnanexus/$i "

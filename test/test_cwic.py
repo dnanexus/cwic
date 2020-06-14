@@ -217,5 +217,21 @@ done
         )
         TU.check_job_is_unsuccessful(job)
 
+    def test_run_credentials_not_mounted(self):
+        """Test that credentials file is not bind mounted into the Docker
+        container if it is not provided"""
+        input_args = {
+            "cmd": 'if [ -f "/home/dnanexus/credentials" || -d "/home/dnanexus/credentials" ]; then exit 1; fi' 
+        }
+        job = self.applet_dx.run(
+            input_args,
+            folder=TEST_FOLDER,
+            project=DX_PROJECT_ID,
+            name=self.applet_basename
+        )
+        print("Waiting for the job {j_id} to complete".format(j_id=job.get_id()))
+        job.wait_on_done()
+
+
 if __name__ == '__main__':
     unittest.main()
