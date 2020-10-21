@@ -50,8 +50,7 @@ Submit a pull request when you are ready to have your code reviewed. Always writ
 
 ```
 export DX_CWIC_PROJECT_ID=project-xxxx
-cd test/
-python3 test_cwic.py
+python3 test/test_cwic.py
 ```
 
 ## Creating a custom CWIC applet
