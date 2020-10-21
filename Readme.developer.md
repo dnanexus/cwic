@@ -1,6 +1,6 @@
 # CWIC Developer Documentation
 
-This Readme describes how to contribute to the development of CWIC. The source code of the app is available at https://github.com/dnanexus/cwic. You can also fork the code, change it according to your specific needs and build your own CWIC app or applet; for more information on how to build a DNAnexus app visit [the app build process guide](https://documentation.dnanexus.com/developer/apps/app-build-process).
+This Readme describes how to contribute to the development of CWIC. The source code of the app is available at https://github.com/dnanexus/cwic. 
 
 Detailed information on how to use CWIC is available in the [DNAnexus official documentation](https://documentation.dnanexus.com/developer/cloud-workstations/cwic) and the Readme of the app.
 
@@ -46,6 +46,34 @@ The main script of the app preforms input validation and invokes the `docker run
 
 When developing CWIC is it useful to have Docker installed on your local computer in order to test building and executing the Docker image.
 
-## Testing
+## Development and testing
 
+Submit a pull request when you are ready to have your code reviewed. Tests are stored in the /test/ directory. Always write unit and/or integration tests for any new code you add, and update tests for any code you modify.
 
+## Creating a custom CWIC applet
+
+You can fork the code, change it according to your specific needs and build your own CWIC applet in a selected project. To do it, login to the Platform, select the project and execute in the root directory of CWIC:
+
+```
+dx build
+```
+
+Then you can run your app with:
+
+```
+dx run my-cwic-app --ssh
+```
+
+For more information on how to build a DNAnexus applications visit [the app build process guide](https://documentation.dnanexus.com/developer/apps/app-build-process).
+
+To update the Docker image, run from the CWIC root directory:
+
+```
+docker build -t org/repo:latest docker/
+```
+
+and push it to your Docker registry:
+
+```
+docker push org/repo:latest
+```
