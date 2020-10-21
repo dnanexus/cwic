@@ -166,7 +166,7 @@ class TestCwic(unittest.TestCase):
         print("Waiting for the job {j_id} to complete".format(j_id=job.get_id()))
         job.wait_on_done()
 
-    @unittest.skip("Skip due missing files: samtools & bam")
+    @unittest.skip("Skip due to missing files: samtools & bam")
     def test_read_file_in_mounted_project(self):
         """ Test that files can be read (with samtools) from a mounted project,
         dx uploaded, and then read again"""
