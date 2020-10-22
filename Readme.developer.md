@@ -38,7 +38,7 @@ When CWIC is started a Docker container is run in the DNAnexus Application Execu
 
 ### App script
 
-The main script of the app preforms input validation and invokes the `docker run` command to start the Docker container.
+The main script of the app performs input validation and invokes the `docker run` command to start the Docker container.
 
 ## CWIC dependencies
 
@@ -62,7 +62,7 @@ You can fork the code, update it and change it according to your specific needs,
 dx build
 ```
 
-Then you can run your app with:
+Then you can run your applet with:
 
 ```
 dx run my-cwic-app --ssh
