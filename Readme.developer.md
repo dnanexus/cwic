@@ -49,6 +49,7 @@ When developing CWIC it is useful to have Docker installed on your local compute
 Submit a pull request when you are ready to have your code reviewed. Always write tests for any new code you add and update tests for any code you modify. Integration and unit tests are stored in the /test/ directory of the app. Integration tests build a temporary applet and run it with different input parameters in a  project that can be specified by setting the `DX_CWIC_PROJECT_ID` environment variable (if the variable is not set, a private DNAnexus project for CWIC tests is used). To run the tests execute:
 
 ```
+dx login
 export DX_CWIC_PROJECT_ID=project-xxxx
 python3 test/test_cwic.py
 ```
