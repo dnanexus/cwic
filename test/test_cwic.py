@@ -38,12 +38,8 @@ class TestCwic(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
 
-        print("Creating test folder")
-        try:
-            PROJECT_DX.new_folder(TEST_FOLDER)
-        except dxpy.DXAPIError:
-            print(f"Folder {TEST_FOLDER} already exists")
-        print(f"Created: {TEST_FOLDER}")
+        print(f"Creating test folder {TEST_FOLDER}")
+        PROJECT_DX.new_folder(TEST_FOLDER, parents=True)
 
         print("Runing make to create a resource dir")
         dxpy.app_builder.build(src_dir)
