@@ -20,7 +20,7 @@ and a few additional useful packages.
 
 There are two ways in which you can modify the Docker environment for CWIC:
 1. by running the app and saving your changed environment with `dx-save-cwic`, which runs `docker commit` and pushes the new image to the Docker registry specified in the `credentials` app input.
-2. by modifying the Dockerfile, push the Docker image to your Docker registry and then specifying your image with the `dx run` command:
+2. by creating (e.g. based on the CWIC Dockerfile) and specifying your image from a Docker registry in the `dx run` command:
 
 ```
 dx run cwic -iimage=org/repo:latest
