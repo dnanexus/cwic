@@ -95,7 +95,7 @@ class TestCwic(unittest.TestCase):
             input_args,
             folder=TEST_FOLDER,
             project=DX_CWIC_PROJECT_ID,
-            name=self.applet_basename
+            name="cwic_test_run_interactive_mode_without_allowssh_should_fail"
         )
         try:
             job.wait_on_done()
@@ -114,7 +114,7 @@ class TestCwic(unittest.TestCase):
             input_args,
             folder=TEST_FOLDER,
             project=DX_CWIC_PROJECT_ID,
-            name=self.applet_basename
+            name="cwic_test_upload_without_credentials"
         )
         job.wait_on_done()
         TU.check_if_exists_and_delete(file_name, DX_CWIC_PROJECT_ID, TEST_FOLDER)
@@ -128,7 +128,7 @@ class TestCwic(unittest.TestCase):
             input_args,
             folder=TEST_FOLDER,
             project=DX_CWIC_PROJECT_ID,
-            name=self.applet_basename
+            name="cwic_test_project_is_not_mounted_should_fail"
         )
         TU.check_job_is_unsuccessful(job)
 
@@ -145,7 +145,7 @@ class TestCwic(unittest.TestCase):
             input_args,
             folder=TEST_FOLDER,
             project=DX_CWIC_PROJECT_ID,
-            name=self.applet_basename
+            name="cwic_test_create_file_in_mounted_project_with_write_access"
         )
         print("Waiting for the job {j_id} to complete".format(j_id=job.get_id()))
         job.wait_on_done()
@@ -161,7 +161,7 @@ class TestCwic(unittest.TestCase):
             input_args,
             folder=TEST_FOLDER,
             project=DX_CWIC_PROJECT_ID,
-            name=self.applet_basename
+            name=f"cwic_test_check_home_directory"
         )
         print("Waiting for the job {j_id} to complete".format(j_id=job.get_id()))
         job.wait_on_done()
@@ -208,7 +208,7 @@ done
             input_args,
             folder=TEST_FOLDER,
             project=DX_CWIC_PROJECT_ID,
-            name=self.applet_basename
+            name=f"cwic_test_read_file_in_mounted_project"
         )
         print("Waiting for the job {j_id} to complete".format(j_id=job.get_id()))
         job.wait_on_done()
@@ -223,7 +223,7 @@ done
             input_args,
             folder=TEST_FOLDER,
             project=DX_CWIC_PROJECT_ID,
-            name=self.applet_basename
+            name=f"cwic_test_run_sub_without_user_dx_token_should_fail"
         )
         TU.check_job_is_unsuccessful(job)
 
@@ -237,7 +237,7 @@ done
             input_args,
             folder=TEST_FOLDER,
             project=DX_CWIC_PROJECT_ID,
-            name=self.applet_basename
+            name=f"cwic_test_run_credentials_not_mounted"
         )
         print("Waiting for the job {j_id} to complete".format(j_id=job.get_id()))
         job.wait_on_done()
