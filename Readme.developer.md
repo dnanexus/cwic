@@ -6,7 +6,7 @@ This Readme describes how to contribute to the development of CWIC. The source c
 
 There are three main components in the app code base:
 - [Dockerfile](https://github.com/dnanexus/cwic/blob/main/docker/Dockerfile), which defines the Docker environment for CWIC.
-- [CWIC scripts](https://github.com/dnanexus/cwic/tree/main/resources/usr/local/bin), which add functionality to CWIC such as the ability to save (snapshot) a running Docker container (`dx-save-cwic`) or launch the app in batch from inside an interactive CWIC session (`dx-cwic-sub`). It also includes the Docker entrypoint `dx-start-cwic`.
+- [CWIC scripts](https://github.com/dnanexus/cwic/tree/main/resources/usr/local/bin), which add functionality to CWIC such as the ability to save (snapshot) a running Docker container (`dx-save-cwic`) or launch the app in batch mode from inside an interactive CWIC session (`dx-cwic-sub`). It also includes the Docker entrypoint `dx-start-cwic`.
 - [src/code.sh](https://github.com/dnanexus/cwic/blob/main/src/code.sh), the main app script.
 
 ### Docker environment
@@ -14,7 +14,7 @@ There are three main components in the app code base:
 A default CWIC Docker image contains:
 - dxpy
 - dxfuse
-- Docker
+- docker
 
 and a few additional useful packages.
 
@@ -26,11 +26,11 @@ There are two ways in which you can modify the Docker environment for CWIC:
 dx run cwic -iimage=org/repo:latest
 ```
 
-Alternatively, to make your image a default one and skip the need to use the `image` option, assign the `DXBASEIMG` variable in the [app script](https://github.com/dnanexus/cwic/blob/main/src/code.sh) to your image (by default it is set to `dnanexus/cwic-base`). This requires of course building the applet in you project and using it instead of cwic.
+Alternatively, to make your image a default one and skip the need to use the `image` option, assign the `DXBASEIMG` variable in the [app script](https://github.com/dnanexus/cwic/blob/main/src/code.sh) to your image (by default it is set to `dnanexus/cwic-base`). This, of course , requires building the applet in you project and using it instead of the cwic app.
 
 ### CWIC scripts
 
-Scripts are located at [/cwic/resources/usr/local/bin/](https://github.com/dnanexus/cwic/tree/main/resources/usr/local/bin). Since they are in the app's resources/ directory, they are all copied to /usr/local/bin/ in the App Execution Environment in which the job runs. They are kept outside of the Docker image and bind-mounted (using `docker run -v` option) into the Docker container during at runtime in order to keep the possibility to update them independently of Docker images.
+Scripts are located at [/cwic/resources/usr/local/bin/](https://github.com/dnanexus/cwic/tree/main/resources/usr/local/bin). Since they are in the app's resources/ directory, they are all copied to /usr/local/bin/ in the App Execution Environment in which the job runs. They are kept outside of the Docker image and bind-mounted (using `docker run -v` option) into the Docker container at  runtime so they can be updated independently of the Docker image.
 
 The Docker container entrypoint [dx-start-cwic](https://github.com/dnanexus/cwic/blob/main/resources/usr/local/bin/dx-start-cwic) checks whether the user provided DNAnexus API token in `credentials` and uses them to log the user into the Platform. If the token is not available the job's token is used in the CWIC Docker environment. A token is needed so that the project can be mounted in CWIC, by default in a read-only mode since the write mode is experimental and under development. If the app is run in a batch, non-interactive mode (with `cmd`), the command is executed with `eval` at the end of the script.
 
@@ -46,7 +46,7 @@ When developing CWIC it is useful to have Docker installed on your local compute
 
 ## Development and testing
 
-Submit a pull request when you are ready to have your code reviewed. Always write tests for any new code you add and update tests for any code you modify. Integration and unit tests are stored in the /test/ directory of the app. Integration tests build a temporary applet and run it with different input parameters in a  project that can be specified by setting the `DX_CWIC_PROJECT_ID` environment variable (if the variable is not set, a private DNAnexus project for CWIC tests is used). To run the tests execute:
+Submit a pull request when you are ready to have your code reviewed. Always write tests for any new code you add and update tests for any code you modify. Integration and unit tests are stored in the `/test/` directory of the app. Integration tests build a temporary applet and run it with different input parameters in a  project that can be specified by setting the `DX_CWIC_PROJECT_ID` environment variable (if the variable is not set, a private DNAnexus project for CWIC tests is used). To run the tests execute:
 
 ```
 dx login
