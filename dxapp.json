@@ -4,7 +4,7 @@
   "summary": "Develop and scale in a portable interactive cloud environment",
   "dxapi": "1.0.0",
   "version": "0.0.6",
-  "billTo": "org-dnanexus",
+  "billTo": "org-dnanexus_apps",
   "openSource": true,
   "inputSpec": [
     {
@@ -36,7 +36,7 @@
       "label": "Project mount options",
       "class": "string",
       "optional": true,
-      "help": "Mount options for project, set to '-w' in order to mount project with write access otherwise read only mode will be used",
+      "help": "Mount options for project, set to '-w' in order to mount project with write access (experimental) otherwise read only mode will be used",
       "default": "-readOnly",
       "choices": [
         "-readOnly",

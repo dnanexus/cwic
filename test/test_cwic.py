@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 import os
 import time
 import unittest
@@ -10,7 +12,7 @@ import dxpy.api
 import dxpy.app_builder
 from dxpy.exceptions import DXAPIError, DXJobFailureError
 
-from test import test_utils as TU
+from test_utils import test_utils as TU
 
 
 #  https://stackoverflow.com/questions/2601047/import-a-python-module-without-the-py-extension
@@ -20,14 +22,15 @@ def import_module(module_name: str, module_path: str):
     spec.loader.exec_module(module)
     return module
 
-
+DX_CWIC_PROJECT_ID = os.environ.get('DX_CWIC_PROJECT_ID', 'project-BzQf6k80V3bJk7x0yv6z82j7')
 src_dir = os.path.join(os.path.dirname(os.path.realpath(__file__)), "..")
 find_cwic_jobs = import_module("dx-find-cwic-jobs", f"{src_dir}/resources/usr/local/bin/dx-find-cwic-jobs")
-DX_PROJECT_ID = 'project-BzQf6k80V3bJk7x0yv6z82j7'
 TEST_TIMESTAMP = str(int(time.time()))
-PROJECT_DX = dxpy.DXProject(DX_PROJECT_ID)
-TEST_FOLDER = '/cwic/test'
+PROJECT_DX = dxpy.DXProject(DX_CWIC_PROJECT_ID)
+PROJECT_NAME = PROJECT_DX.name
+TEST_FOLDER = '/cwic/'
 
+print(f"Running tests in {PROJECT_NAME}")
 
 class TestCwic(unittest.TestCase):
     applet_id = None
@@ -35,12 +38,15 @@ class TestCwic(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
 
+        print(f"Creating test folder {TEST_FOLDER}")
+        PROJECT_DX.new_folder(TEST_FOLDER, parents=True)
+
         print("Runing make to create a resource dir")
         dxpy.app_builder.build(src_dir)
 
         print("Uploading the app resources to the platform")
         bundled_resources = dxpy.app_builder.upload_resources(
-            src_dir, project=DX_PROJECT_ID, folder=TEST_FOLDER,
+            src_dir, project=DX_CWIC_PROJECT_ID, folder=TEST_FOLDER,
         )
 
         try:
@@ -52,7 +58,7 @@ class TestCwic(unittest.TestCase):
         cls.applet_basename = app_name + "_" + str(uuid.uuid4())
         cls.applet_id, _ignored_applet_spec = dxpy.app_builder.upload_applet(
             src_dir, bundled_resources, override_name=cls.applet_basename,
-            overwrite=True, project=DX_PROJECT_ID, override_folder=TEST_FOLDER
+            overwrite=True, project=DX_CWIC_PROJECT_ID, override_folder=TEST_FOLDER
         )
         cls.applet_dx = dxpy.DXApplet(cls.applet_id)
 
@@ -61,7 +67,7 @@ class TestCwic(unittest.TestCase):
         print("Clean up by removing the app we created.")
         try:
             dxpy.api.container_remove_objects(
-                DX_PROJECT_ID, {"objects": [cls.applet_id]}
+                DX_CWIC_PROJECT_ID, {"objects": [cls.applet_id]}
             )
         except (DXAPIError, DXJobFailureError) as e:
             print("Error removing {} during cleanup; ignoring.".format(cls.applet_id))
@@ -84,8 +90,8 @@ class TestCwic(unittest.TestCase):
         job = self.applet_dx.run(
             input_args,
             folder=TEST_FOLDER,
-            project=DX_PROJECT_ID,
-            name=self.applet_basename
+            project=DX_CWIC_PROJECT_ID,
+            name="cwic_test_run_interactive_mode_without_allowssh_should_fail"
         )
         try:
             job.wait_on_done()
@@ -103,45 +109,43 @@ class TestCwic(unittest.TestCase):
         job = self.applet_dx.run(
             input_args,
             folder=TEST_FOLDER,
-            project=DX_PROJECT_ID,
-            name=self.applet_basename
+            project=DX_CWIC_PROJECT_ID,
+            name="cwic_test_upload_without_credentials"
         )
         job.wait_on_done()
-        TU.check_if_exists_and_delete(file_name, DX_PROJECT_ID, TEST_FOLDER)
+        TU.check_if_exists_and_delete(file_name, DX_CWIC_PROJECT_ID, TEST_FOLDER)
 
     def test_project_is_not_mounted(self):
         file_name = f"test_no_credentials_{TEST_TIMESTAMP}.txt"
-        DX_PROJECT_NAME = PROJECT_DX.describe()["name"]
         input_args = {
-            "cmd": f"touch \"/project/{DX_PROJECT_NAME}{TEST_FOLDER}/{file_name}\""
+            "cmd": f"touch \"/project/{PROJECT_NAME}{TEST_FOLDER}/{file_name}\""
         }
         job = self.applet_dx.run(
             input_args,
             folder=TEST_FOLDER,
-            project=DX_PROJECT_ID,
-            name=self.applet_basename
+            project=DX_CWIC_PROJECT_ID,
+            name="cwic_test_project_is_not_mounted_should_fail"
         )
         TU.check_job_is_unsuccessful(job)
 
     def test_create_file_in_mounted_project_with_write_access(self):
         """ Test that a file created in a mounted project in cwic is
         accessible from the platform"""
-        DX_PROJECT_NAME = PROJECT_DX.describe()["name"]
 
         file_name = "test_foo_{}.txt".format(TEST_TIMESTAMP)
         input_args = {
-            "cmd": f"touch \"/project/{DX_PROJECT_NAME}{TEST_FOLDER}/{file_name}\"",
+            "cmd": f"touch \"/project/{PROJECT_NAME}{TEST_FOLDER}/{file_name}\"",
             "project_mount_options": "-w"
         }
         job = self.applet_dx.run(
             input_args,
             folder=TEST_FOLDER,
-            project=DX_PROJECT_ID,
-            name=self.applet_basename
+            project=DX_CWIC_PROJECT_ID,
+            name="cwic_test_create_file_in_mounted_project_with_write_access"
         )
         print("Waiting for the job {j_id} to complete".format(j_id=job.get_id()))
         job.wait_on_done()
-        TU.check_if_exists_and_delete(file_name, DX_PROJECT_ID, TEST_FOLDER)
+        TU.check_if_exists_and_delete(file_name, DX_CWIC_PROJECT_ID, TEST_FOLDER)
 
     def test_check_home_directory(self):
         """ Test that the home directory inside Docker is /home/cwic """
@@ -152,22 +156,23 @@ class TestCwic(unittest.TestCase):
         job = self.applet_dx.run(
             input_args,
             folder=TEST_FOLDER,
-            project=DX_PROJECT_ID,
-            name=self.applet_basename
+            project=DX_CWIC_PROJECT_ID,
+            name=f"cwic_test_check_home_directory"
         )
         print("Waiting for the job {j_id} to complete".format(j_id=job.get_id()))
         job.wait_on_done()
 
+    @unittest.skip("Skip due to missing files: samtools & bam")
     def test_read_file_in_mounted_project(self):
         """ Test that files can be read (with samtools) from a mounted project,
         dx uploaded, and then read again"""
 
         bash_script="""
 #!/bin/bash
-  
+
 set -xe
-proj="DNAnexus Regression Testing Project AWS US east"
-samtools_path="/project/$proj/tools/samtools"
+proj="PROJECT_PLACEHOLDER"
+samtools_path="/project/$proj/samtools"
 bam_path="/project/$proj/data_files/Small BAM/SRR504516_small.bam"
 uuid=$(python3 -c 'import uuid; print(uuid.uuid4())')
 
@@ -191,14 +196,15 @@ for chr in $chromosomes; do
 done
 """
 
+        bash_script = bash_script.replace("PROJECT_PLACEHOLDER", PROJECT_NAME)
         input_args = {
             "cmd": bash_script
         }
         job = self.applet_dx.run(
             input_args,
             folder=TEST_FOLDER,
-            project=DX_PROJECT_ID,
-            name=self.applet_basename
+            project=DX_CWIC_PROJECT_ID,
+            name=f"cwic_test_read_file_in_mounted_project"
         )
         print("Waiting for the job {j_id} to complete".format(j_id=job.get_id()))
         job.wait_on_done()
@@ -212,8 +218,8 @@ done
         job = self.applet_dx.run(
             input_args,
             folder=TEST_FOLDER,
-            project=DX_PROJECT_ID,
-            name=self.applet_basename
+            project=DX_CWIC_PROJECT_ID,
+            name=f"cwic_test_run_sub_without_user_dx_token_should_fail"
         )
         TU.check_job_is_unsuccessful(job)
 
@@ -221,13 +227,13 @@ done
         """Test that credentials file is not bind mounted into the Docker
         container if it is not provided"""
         input_args = {
-            "cmd": 'if [ -f "/home/dnanexus/credentials" || -d "/home/dnanexus/credentials" ]; then exit 1; fi' 
+            "cmd": 'if [ -f "/home/dnanexus/credentials" || -d "/home/dnanexus/credentials" ]; then exit 1; fi'
         }
         job = self.applet_dx.run(
             input_args,
             folder=TEST_FOLDER,
-            project=DX_PROJECT_ID,
-            name=self.applet_basename
+            project=DX_CWIC_PROJECT_ID,
+            name=f"cwic_test_run_credentials_not_mounted"
         )
         print("Waiting for the job {j_id} to complete".format(j_id=job.get_id()))
         job.wait_on_done()
