@@ -45,6 +45,7 @@
     }
   ],
   "outputSpec": [],
+  "ignoreReuse": true,
   "runSpec": {
     "interpreter": "bash",
     "release": "16.04",
