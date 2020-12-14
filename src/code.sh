@@ -14,9 +14,6 @@ main() {
         echo "Will start interactive Docker container"
         INTERACTIVE=1
 
-        # interactive apps should run sub-jobs detached automatically.
-        export DX_RUN_DETACH=1
-
         allow_ssh=$(jq .allowSSH /home/dnanexus/dnanexus-job.json)
         if [[ -z "$allow_ssh" || "$allow_ssh" == null ]]; then
             echo "ERROR: job not run with the ssh flag on and command is not provided."
@@ -126,7 +123,7 @@ main() {
         --entrypoint /usr/local/bin/dx-start-cwic
         --workdir /home/cwic
         -e HOME=/home/cwic
-        -e DX_RUN_DETACH
+        -e DX_RUN_DETACH=$INTERACTIVE
         --name cwic"
 
     mark-section "starting Docker container"
