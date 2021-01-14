@@ -59,7 +59,7 @@
       "allProjects": "VIEW"
   },
   "details": {
-    "whatsNew": "* 0.0.6: Jobs started from Cloud workstation are started in detached mode by default. Updated version of dx-toolkit to v0.305.0. \n* 0.0.6: Add dx-find-cwic-jobs and dx-cwic-sub scripts; mount project in read only mode by default; set HOME to /home/cwic; upgrade dxfuse to v0.22.2\n* 0.0.5: Upgrade dxfuse to v0.22.1\n* 0.0.4: Load cwic when opening a tmux window; Use dnanexus/cwic-base:0.0.1 as default image; Fix prompt; Bug fixes\n* 0.0.3: Bug fixes\n* 0.0.2: Pass DNAnexus user token in credentials and use it in Docker container\n* 0.0.1: Releasing an alpha version\n"
+    "whatsNew": "* 0.1.0: Jobs started from Cloud workstation are started in detached mode by default. Updated version of dx-toolkit to v0.305.0. \n* 0.0.6: Add dx-find-cwic-jobs and dx-cwic-sub scripts; mount project in read only mode by default; set HOME to /home/cwic; upgrade dxfuse to v0.22.2\n* 0.0.5: Upgrade dxfuse to v0.22.1\n* 0.0.4: Load cwic when opening a tmux window; Use dnanexus/cwic-base:0.0.1 as default image; Fix prompt; Bug fixes\n* 0.0.3: Bug fixes\n* 0.0.2: Pass DNAnexus user token in credentials and use it in Docker container\n* 0.0.1: Releasing an alpha version\n"
   },
   "categories": ["Development", "Data Exploration"],
   "regionalOptions": {
