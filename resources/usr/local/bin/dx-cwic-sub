@@ -15,7 +15,7 @@ ALL_BUT_LAST_ARG=${*:1:$#-1}
 LAST_ARG=${*: -1}
 DX_VERSION=$(dx --version | sed 's/.* //')
 FIRST_DETACHED_VERSION="v0.305.0"
-if [[ ($FIRST_DETACHED_VERSION != $DX_VERSION && $FIRST_DETACHED_VERSION = "`echo -e "$FIRST_DETACHED_VERSION\n$DX_VERSION" | sort -V | head -n1`") ]]; then
+if [[ ($FIRST_DETACHED_VERSION != $DX_VERSION && $DX_VERSION = "`echo -e "$DX_VERSION\n$FIRST_DETACHED_VERSION" | sort -V | head -n1`") ]]; then
     ABLE_TO_RUN_DETACH=0
 else
     ABLE_TO_RUN_DETACH=1
