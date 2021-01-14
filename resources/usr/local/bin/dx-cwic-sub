@@ -13,6 +13,13 @@ JOB_INPUT_FILE="${DNANEXUS_HOME}/job_input.json"
 JOB_INFO_FILE="${DNANEXUS_HOME}/dnanexus-job.json"
 ALL_BUT_LAST_ARG=${*:1:$#-1}
 LAST_ARG=${*: -1}
+DX_VERSION=$(dx --version | sed 's/.* //')
+FIRST_DETACHED_VERSION="v0.305.0"
+if [[ ($FIRST_DETACHED_VERSION != $DX_VERSION && $FIRST_DETACHED_VERSION = "`echo -e "$FIRST_DETACHED_VERSION\n$DX_VERSION" | sort -V | head -n1`") ]]; then
+    ABLE_TO_RUN_DETACH=1
+else
+    ABLE_TO_RUN_DETACH=0
+fi
 
 if [[ $1 == "--help" || $1 == "-h" ]]; then
     echo -e "Usage: $0"
@@ -35,20 +42,27 @@ if [[ "$LAST_ARG" == --* ]]; then
     exit
 fi
 
-USER=$(dx whoami 2>/dev/null) || true
-if [[ $(dx describe user-"${USER}" --json 2>/dev/null | jq -r ".billTo") == "null" ]] || [[ -z "${USER}" ]]; then
-    echo -e "User is not logged in. Retrieving DNAnexus auth token from the credentials file..."
-    if [[ -f "$CREDENTIALS_FILE_PATH" ]]; then
-        DNANEXUS_TOKEN=$(jq -r ".dnanexus.token" <"${CREDENTIALS_FILE_PATH}")
-    else
-        echo -e "The credentials file does not exist. Please log in and try again. Exiting..."
-        exit 1
+if [ $ABLE_TO_RUN_DETACH = 0 ]; then
+    echo -e "Please update the version of dx to run jobs in detached mode. To update dx use 'pip install dxpy --upgrade'"
+fi
+
+# Detached jobs do not require DNAnexus token if current dx-toolkit version supports detached jobs.
+if [[ $DX_DETACH_RUN != 1 || $ABLE_TO_RUN_DETACH == 1 ]] ; then
+    USER=$(dx whoami 2>/dev/null) || true
+    if [[ $(dx describe user-"${USER}" --json 2>/dev/null | jq -r ".billTo") == "null" ]] || [[ -z "${USER}" ]]; then
+        echo -e "User is not logged in. Retrieving DNAnexus auth token from the credentials file..."
+        if [[ -f "$CREDENTIALS_FILE_PATH" ]]; then
+            DNANEXUS_TOKEN=$(jq -r ".dnanexus.token" <"${CREDENTIALS_FILE_PATH}")
+        else
+            echo -e "The credentials file does not exist. Please log in and try again. Exiting..."
+            exit 1
+        fi
+        if [[ "${DNANEXUS_TOKEN}" == "null" ]] || [[ -z "${DNANEXUS_TOKEN}" ]]; then
+            echo -e "DNAnexus token is not set in the credentials file. Please provide DNAnexus token or log in. Exiting..."
+            exit 1
+        fi
+        dx login --noprojects --token "$DNANEXUS_TOKEN"
     fi
-    if [[ "${DNANEXUS_TOKEN}" == "null" ]] || [[ -z "${DNANEXUS_TOKEN}" ]]; then
-        echo -e "DNAnexus token is not set in the credentials file. Please provide DNAnexus token or log in. Exiting..."
-        exit 1
-    fi
-    dx login --noprojects --token "$DNANEXUS_TOKEN"
 fi
 
 opts=()
