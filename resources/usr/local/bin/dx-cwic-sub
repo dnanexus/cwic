@@ -43,11 +43,11 @@ if [[ "$LAST_ARG" == --* ]]; then
 fi
 
 if [ $ABLE_TO_RUN_DETACH = 0 ]; then
-    echo -e "Please update the version of dx to run jobs in detached mode. To update dx use 'pip install dxpy --upgrade'"
+    echo -e "Please update the version of dx to be able to run jobs in detached mode. To update dx use 'pip install dxpy --upgrade'"
 fi
 
 # Detached jobs do not require DNAnexus token if current dx-toolkit version supports detached jobs.
-if [[ $DX_DETACH_RUN != 1 || $ABLE_TO_RUN_DETACH = 1 ]] ; then
+if [[ $DX_DETACH_RUN != 1 || $ABLE_TO_RUN_DETACH = 0 ]] ; then
     USER=$(dx whoami 2>/dev/null) || true
     if [[ $(dx describe user-"${USER}" --json 2>/dev/null | jq -r ".billTo") == "null" ]] || [[ -z "${USER}" ]]; then
         echo -e "User is not logged in. Retrieving DNAnexus auth token from the credentials file..."
