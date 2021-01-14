@@ -16,9 +16,9 @@ LAST_ARG=${*: -1}
 DX_VERSION=$(dx --version | sed 's/.* //')
 FIRST_DETACHED_VERSION="v0.305.0"
 if [[ ($FIRST_DETACHED_VERSION != $DX_VERSION && $FIRST_DETACHED_VERSION = "`echo -e "$FIRST_DETACHED_VERSION\n$DX_VERSION" | sort -V | head -n1`") ]]; then
-    ABLE_TO_RUN_DETACH=1
-else
     ABLE_TO_RUN_DETACH=0
+else
+    ABLE_TO_RUN_DETACH=1
 fi
 
 if [[ $1 == "--help" || $1 == "-h" ]]; then
@@ -43,7 +43,7 @@ if [[ "$LAST_ARG" == --* ]]; then
 fi
 
 if [ $ABLE_TO_RUN_DETACH = 0 ]; then
-    echo -e "Please update the version of dx to be able to run jobs in detached mode. To update dx use 'pip install dxpy --upgrade'"
+    echo -e "Please update the version of dxpy in your Docker image to be able to run jobs in detached mode. To update dx use 'pip3 install dxpy --upgrade'"
 fi
 
 # Detached jobs do not require DNAnexus token if current dx-toolkit version supports detached jobs.

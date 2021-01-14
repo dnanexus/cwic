@@ -17,5 +17,5 @@ img=$(echo ${resp} | awk '{print $6":"$7}' | tr -d "[" | tr -d "]")
 img=${img%:}
 
 docker tag $img $latest_tag
-docker push $latest_tag 
+docker push $latest_tag
 
