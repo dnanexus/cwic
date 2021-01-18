@@ -36,11 +36,12 @@
       "label": "Project mount options",
       "class": "string",
       "optional": true,
-      "help": "Mount options for project, set to '-w' in order to mount project with write access (experimental) otherwise read only mode will be used",
+      "help": "Mount options for project, set to '-w' or '-readWrite' in order to mount project with write access (experimental) otherwise read only mode will be used",
       "default": "-readOnly",
       "choices": [
         "-readOnly",
-        "-w"
+        "-w",
+        "-readWrite"
       ]
     }
   ],
