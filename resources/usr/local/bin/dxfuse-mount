@@ -5,7 +5,7 @@ JOB_INPUT_FILE="${DNANEXUS_HOME}/job_input.json"
 
 READ_ONLY="-readOnly"
 if [[ -f "$JOB_INPUT_FILE" ]] && [[ "$(jq -r ".project_mount_options" <"${JOB_INPUT_FILE}")" != "-readOnly" ]]; then
-    READ_ONLY=""
+    READ_ONLY="-readWrite"
 fi
 
 if dxfuse $READ_ONLY $@; then

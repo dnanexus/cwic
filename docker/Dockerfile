@@ -35,15 +35,15 @@ RUN curl -fsSL get.docker.com -o get-docker.sh \
     && sh get-docker.sh
 
 RUN pip3 install --no-cache-dir \
-    dxpy
+    dxpy==v0.305.0
 
 # Install dxfuse
-RUN wget https://github.com/dnanexus/dxfuse/releases/download/v0.22.2/dxfuse-linux -P /usr/local/bin/ \
+RUN wget https://github.com/dnanexus/dxfuse/releases/download/v0.23.2/dxfuse-linux -P /usr/local/bin/ \
     && mv /usr/local/bin/dxfuse-linux /usr/local/bin/dxfuse \
     && chmod +x /usr/local/bin/dxfuse
 
 RUN mkdir -p /project /scratch /home/dnanexus /home/cwic
- 
+
 CMD ["/bin/bash"]
 
 WORKDIR /home/cwic

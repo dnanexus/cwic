@@ -5,6 +5,7 @@ set -e
 DNANEXUS_HOME="/home/dnanexus"
 JOB_INPUT_FILE="${DNANEXUS_HOME}/job_input.json"
 ENV="${DNANEXUS_HOME}/environment"
+export DX_RUN_DETACH=1
 
 # if user provided their authentication token in the input, use it
 # otherwise source environment to make use of the job's token

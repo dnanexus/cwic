@@ -6,7 +6,7 @@ main() {
     echo "Value of cmd: '$cmd'"
     echo "Value of credentials: '$credentials'"
 
-    DXBASEIMG=dnanexus/cwic-base:0.0.3
+    DXBASEIMG=dnanexus/cwic-base:0.0.4
 
     mark-section "checking if cwic will be run interactively or in non-interactive batch mode"
 
@@ -123,6 +123,7 @@ main() {
         --entrypoint /usr/local/bin/dx-start-cwic
         --workdir /home/cwic
         -e HOME=/home/cwic
+        -e DX_RUN_DETACH=1
         --name cwic"
 
     mark-section "starting Docker container"
