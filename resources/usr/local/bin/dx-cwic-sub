@@ -8,6 +8,7 @@ if [ $# -eq 0 ]; then
 fi
 
 DNANEXUS_HOME=/home/dnanexus
+ENVIRONMENT_FILE="${DNANEXUS_HOME}/environment"
 CREDENTIALS_FILE_PATH="${DNANEXUS_HOME}/credentials"
 JOB_INPUT_FILE="${DNANEXUS_HOME}/job_input.json"
 JOB_INFO_FILE="${DNANEXUS_HOME}/dnanexus-job.json"
@@ -25,6 +26,7 @@ if [[ $1 == "--help" || $1 == "-h" ]]; then
     echo -e "Usage: $0"
     echo -e "Launches cwic app in batch from inside an interactive cwic session."
     echo -e "Uses user's auth token if logged in, if not, then uses auth token from DNAnexus config or the credentials file."
+    echo -e "Auth token is not required while running in detached mode. To run in detached mode run 'export DX_RUN_DETACH=1'. This value should be default in cwic."
     echo -e "The last argument is expected to be the command run by cwic. It can be preceded by CLI arguments accepted by dx run."
     echo -e "For more details please check 'dx run -h'."
     echo -e "Examples:"
@@ -46,21 +48,22 @@ if [ $ABLE_TO_RUN_DETACH = 0 ]; then
     echo -e "Please update the version of dxpy in your Docker image to be able to run jobs in detached mode. To update dx use 'pip3 install dxpy --upgrade'"
 fi
 
-# Detached jobs do not require DNAnexus token if current dx-toolkit version supports detached jobs.
-if [[ $DX_RUN_DETACH != 1 || $ABLE_TO_RUN_DETACH = 0 ]] ; then
-    USER=$(dx whoami 2>/dev/null) || true
-    if [[ $(dx describe user-"${USER}" --json 2>/dev/null | jq -r ".billTo") == "null" ]] || [[ -z "${USER}" ]]; then
-        echo -e "User is not logged in. Retrieving DNAnexus auth token from the credentials file..."
-        if [[ -f "$CREDENTIALS_FILE_PATH" ]]; then
-            DNANEXUS_TOKEN=$(jq -r ".dnanexus.token" <"${CREDENTIALS_FILE_PATH}")
+USER=$(dx whoami 2>/dev/null) || true
+if [[ $(dx describe user-"${USER}" --json 2>/dev/null | jq -r ".billTo") == "null" ]] || [[ -z "${USER}" ]]; then
+    echo -e "User is not logged in. Retrieving DNAnexus auth token from the credentials file..."
+    if [[ -f "$CREDENTIALS_FILE_PATH" ]]; then
+        DNANEXUS_TOKEN=$(jq -r ".dnanexus.token" <"${CREDENTIALS_FILE_PATH}")
+    fi
+
+    if [[ "${DNANEXUS_TOKEN}" == "null" ]] || [[ -z "${DNANEXUS_TOKEN}" ]]; then
+        if [[ $DX_RUN_DETACH != 1 || $ABLE_TO_RUN_DETACH = 0 ]]; then
+            echo -e "DNAnexus token was not found. Please provide DNAnexus token, log in or run 'export DX_RUN_DETACH=1' to run dx-cwic-sub in detached mode. Exiting..."
+            exit 1
         else
-            echo -e "The credentials file does not exist. Please log in and try again. Exiting..."
-            exit 1
+            echo -e "DNAnexus token was not found. Sourcing environment file (${ENVIRONMENT_FILE}) in order to run job in detached mode."
+            source $ENVIRONMENT_FILE
         fi
-        if [[ "${DNANEXUS_TOKEN}" == "null" ]] || [[ -z "${DNANEXUS_TOKEN}" ]]; then
-            echo -e "DNAnexus token is not set in the credentials file. Please provide DNAnexus token or log in. Exiting..."
-            exit 1
-        fi
+    else
         dx login --noprojects --token "$DNANEXUS_TOKEN"
     fi
 fi
