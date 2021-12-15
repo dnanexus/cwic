@@ -3,7 +3,7 @@
   "title": "CWIC - cloud workstation in container",
   "summary": "Develop and scale in a portable interactive cloud environment",
   "dxapi": "1.0.0",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "billTo": "org-dnanexus_apps",
   "openSource": true,
   "inputSpec": [
@@ -55,20 +55,54 @@
     "version": "1"
   },
   "access": {
-      "network": ["*"],
-      "project": "CONTRIBUTE",
-      "allProjects": "VIEW"
+    "network": [
+      "*"
+    ],
+    "project": "CONTRIBUTE",
+    "allProjects": "VIEW"
   },
   "details": {
-    "whatsNew": "* 0.1.0: Jobs started from cwic are started in detached mode by default. Updated version of dx-toolkit to v0.305.0. Upgraded dxfuse to v0.23.1. Updated base image to 0.0.4. \n* 0.0.6: Add dx-find-cwic-jobs and dx-cwic-sub scripts; mount project in read only mode by default; set HOME to /home/cwic; upgrade dxfuse to v0.22.2\n* 0.0.5: Upgrade dxfuse to v0.22.1\n* 0.0.4: Load cwic when opening a tmux window; Use dnanexus/cwic-base:0.0.1 as default image; Fix prompt; Bug fixes\n* 0.0.3: Bug fixes\n* 0.0.2: Pass DNAnexus user token in credentials and use it in Docker container\n* 0.0.1: Releasing an alpha version\n"
+    "whatsNew": "* 0.2.0: Removed from aws:cn-north-1 region\n* 0.1.0: Jobs started from cwic are started in detached mode by default. Updated version of dx-toolkit to v0.305.0. Upgraded dxfuse to v0.23.1. Updated base image to 0.0.4. \n* 0.0.6: Add dx-find-cwic-jobs and dx-cwic-sub scripts; mount project in read only mode by default; set HOME to /home/cwic; upgrade dxfuse to v0.22.2\n* 0.0.5: Upgrade dxfuse to v0.22.1\n* 0.0.4: Load cwic when opening a tmux window; Use dnanexus/cwic-base:0.0.1 as default image; Fix prompt; Bug fixes\n* 0.0.3: Bug fixes\n* 0.0.2: Pass DNAnexus user token in credentials and use it in Docker container\n* 0.0.1: Releasing an alpha version\n"
   },
-  "categories": ["Development", "Data Exploration"],
+  "categories": [
+    "Development",
+    "Data Exploration"
+  ],
   "regionalOptions": {
-    "azure:westus": {"systemRequirements": {"*": {"instanceType": "azure:mem2_ssd1_x1"}}},
-    "azure:westeurope": {"systemRequirements": {"*": {"instanceType": "azure:mem2_ssd1_x1"}}},
-    "aws:us-east-1": {"systemRequirements": {"*": {"instanceType": "mem1_ssd1_v2_x4"}}},
-    "aws:cn-north-1": {"systemRequirements": {"*": {"instanceType": "mem1_ssd1_v2_x4"}}},
-    "aws:eu-central-1": {"systemRequirements": {"*": {"instanceType": "mem1_ssd1_v2_x4"}}},
-    "aws:ap-southeast-2": {"systemRequirements": {"*": {"instanceType": "mem1_ssd1_v2_x4"}}}
+    "azure:westus": {
+      "systemRequirements": {
+        "*": {
+          "instanceType": "azure:mem2_ssd1_x1"
+        }
+      }
+    },
+    "azure:westeurope": {
+      "systemRequirements": {
+        "*": {
+          "instanceType": "azure:mem2_ssd1_x1"
+        }
+      }
+    },
+    "aws:us-east-1": {
+      "systemRequirements": {
+        "*": {
+          "instanceType": "mem1_ssd1_v2_x4"
+        }
+      }
+    },
+    "aws:eu-central-1": {
+      "systemRequirements": {
+        "*": {
+          "instanceType": "mem1_ssd1_v2_x4"
+        }
+      }
+    },
+    "aws:ap-southeast-2": {
+      "systemRequirements": {
+        "*": {
+          "instanceType": "mem1_ssd1_v2_x4"
+        }
+      }
+    }
   }
 }
